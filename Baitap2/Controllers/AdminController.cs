@@ -230,17 +230,21 @@ public class AdminController : Controller
         return RedirectToAction("Gia");
     }
 
-    // =========================
-    // 📊 BÁO CÁO
-    // =========================
+ 
     public IActionResult BaoCao()
     {
-        var tongTien = _context.ThanhToans
-            .Where(x => x.TrangThai == "DaTT")
-            .Sum(x => (decimal?)x.SoTien) ?? 0;
+        // 💰 CHỈ TÍNH CHUYẾN ĐÃ HOÀN THÀNH
+        var tongTien = _context.ChuyenDis
+            .Where(x => x.TrangThai == TrangThai.HoanThanh)
+            .Sum(x => (decimal?)x.GiaDuKien) ?? 0;
 
-        var soChuyen = _context.ChuyenDis.Count();
-        var soUser = _context.NguoiDungs.Count();
+        // 🚕 CHỈ ĐẾM CHUYẾN HOÀN THÀNH
+        var soChuyen = _context.ChuyenDis
+            .Count(x => x.TrangThai == TrangThai.HoanThanh);
+
+        // 👤 ĐẾM USER ĐANG HOẠT ĐỘNG
+        var soUser = _context.NguoiDungs
+            .Count(x => x.IsActive);
 
         ViewBag.TongTien = tongTien;
         ViewBag.SoChuyen = soChuyen;

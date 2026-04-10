@@ -1,5 +1,4 @@
-﻿
-using Baitap2.Data;
+﻿using Baitap2.Data;
 using Baitap2.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +22,12 @@ namespace Baitap2.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ thông tin";
+                return View();
+            }
+
             var user = _context.NguoiDungs
                 .FirstOrDefault(x => x.Username == username && x.MatKhau == password);
 
@@ -32,14 +37,23 @@ namespace Baitap2.Controllers
                 return View();
             }
 
-            // 🔥 QUAN TRỌNG: clear session cũ
+            if (user.BiKhoa)
+            {
+                ViewBag.Error = "Tài khoản đã bị khóa";
+                return View();
+            }
+
+            if (!user.IsActive)
+            {
+                ViewBag.Error = "Tài khoản chưa kích hoạt";
+                return View();
+            }
+
             HttpContext.Session.Clear();
 
-            // 🔥 FIX CHUẨN: dùng INT
             HttpContext.Session.SetInt32("UserId", user.Id);
             HttpContext.Session.SetString("Role", user.VaiTro.ToString());
 
-            // 👉 Redirect theo role
             if (user.VaiTro == VaiTro.Admin)
                 return RedirectToAction("Dashboard", "Admin");
 
@@ -63,20 +77,29 @@ namespace Baitap2.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(string username, string email, string password, string vaiTro, string dienThoai)
+        public IActionResult Register(NguoiDung model)
         {
-            var role = Enum.Parse<VaiTro>(vaiTro);
-
-            var user = new NguoiDung
+            // 1. Validate
+            if (!ModelState.IsValid)
             {
-                Username = username,
-                Email = email,
-                MatKhau = password,
-                VaiTro = role,
-                DienThoai = dienThoai
-            };
+                return View(model);
+            }
 
-            _context.NguoiDungs.Add(user);
+            // 2. Check trùng
+            if (_context.NguoiDungs.Any(x => x.Username == model.Username))
+            {
+                ModelState.AddModelError("Username", "Username đã tồn tại");
+                return View(model);
+            }
+
+            if (_context.NguoiDungs.Any(x => x.Email == model.Email))
+            {
+                ModelState.AddModelError("Email", "Email đã tồn tại");
+                return View(model);
+            }
+
+            // 3. Save
+            _context.NguoiDungs.Add(model);
             _context.SaveChanges();
 
             return RedirectToAction("Login");

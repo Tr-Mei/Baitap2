@@ -1,162 +1,198 @@
-﻿@{
+﻿@* 
+
+
+@{
     Layout = null;
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Báo cáo</title>
+<div class="container">
+    <h3>📊 Báo cáo hệ thống</h3>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #f4f6f9;
-        }
-
-        .container {
-            padding: 30px;
-            max-width: 1000px;
-            margin: auto;
-        }
-
-        h3 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .icon {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
-
-        .value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .money {
-            color: #28a745;
-        }
-
-        .trip {
-            color: #007bff;
-        }
-
-        .user {
-            color: #ff9800;
-        }
-
-        .chart-box {
-            margin-top: 30px;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container">
-        <h3>📊 Báo cáo hệ thống</h3>
-
-        <!-- CARD -->
-        <div class="grid">
-            <div class="card">
-                <div class="icon">💰</div>
-                <div id="money" class="value money">0</div>
-                <div>Tổng doanh thu</div>
-            </div>
-
-            <div class="card">
-                <div class="icon">🚕</div>
-                <div id="trip" class="value trip">0</div>
-                <div>Tổng chuyến</div>
-            </div>
-
-            <div class="card">
-                <div class="icon">👤</div>
-                <div id="user" class="value user">0</div>
-                <div>Người dùng</div>
-            </div>
+    <div class="grid">
+        <div class="card">
+            <div class="icon">💰</div>
+            <div id="money" class="value money">@ViewBag.TongTien</div>
+            <div>Tổng doanh thu</div>
         </div>
 
-        <!-- CHART -->
-        <div class="chart-box">
-            <canvas id="chart"></canvas>
+        <div class="card">
+            <div class="icon">🚕</div>
+            <div id="trip" class="value trip">@ViewBag.SoChuyen</div>
+            <div>Tổng chuyến</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">👤</div>
+            <div id="user" class="value user">@ViewBag.SoUser</div>
+            <div>Người dùng</div>
         </div>
     </div>
 
-    <script>
-        // ===== DATA =====
-        const tongTien = @ViewBag.TongTien;
-        const soChuyen = @ViewBag.SoChuyen;
-        const soUser = @ViewBag.SoUser;
+    <div class="chart-box">
+        <canvas id="chart"></canvas>
+    </div>
+</div> *@
 
-        // ===== ANIMATION COUNT =====
-        function animateValue(id, end, duration) {
-            let obj = document.getElementById(id);
-            let start = 0;
-            let startTime = null;
 
-            function step(timestamp) {
-                if (!startTime) startTime = timestamp;
-                let progress = timestamp - startTime;
-                let value = Math.floor(progress / duration * end);
+@{
+    Layout = null;
+}
 
-                if (value > end) value = end;
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: #f4f6f9;
+    }
 
-                obj.innerText = value.toLocaleString();
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
 
-                if (progress < duration) {
-                    requestAnimationFrame(step);
-                }
-            }
+    h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 26px;
+        color: #333;
+    }
 
-            requestAnimationFrame(step);
+    /* GRID */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    /* CARD */
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.3s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
         }
 
-        animateValue("money", tongTien, 1000);
-        animateValue("trip", soChuyen, 1000);
-        animateValue("user", soUser, 1000);
+    .icon {
+        font-size: 35px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eee;
+    }
 
-        // ===== CHART =====
-        const ctx = document.getElementById('chart');
+    .info {
+        flex: 1;
+    }
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Doanh thu', 'Chuyến', 'Người dùng'],
-                datasets: [{
-                    label: 'Thống kê',
-                    data: [tongTien, soChuyen, soUser]
-                }]
-            },
-            options: {
-                responsive: true
+    .value {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .label {
+        font-size: 14px;
+        color: #777;
+    }
+
+    /* COLORS */
+    .money {
+        color: #28a745;
+    }
+
+    .trip {
+        color: #007bff;
+    }
+
+    .user {
+        color: #ff9800;
+    }
+
+    /* CHART */
+    .chart-box {
+        margin-top: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="container">
+    <h3>📊 Báo cáo hệ thống</h3>
+
+    <!-- CARD -->
+    <div class="grid">
+
+        <div class="card">
+            <div class="icon">💰</div>
+            <div class="info">
+                <div class="value money">@String.Format("{0:N0}", ViewBag.TongTien) VNĐ</div>
+                <div class="label">Tổng doanh thu</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🚕</div>
+            <div class="info">
+                <div class="value trip">@ViewBag.SoChuyen</div>
+                <div class="label">Tổng chuyến</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="icon">👤</div>
+            <div class="info">
+                <div class="value user">@ViewBag.SoUser</div>
+                <div class="label">Người dùng</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-box">
+        <canvas id="chart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const tongTien = Number('@(ViewBag.TongTien ?? 0)');
+    const soChuyen = Number('@(ViewBag.SoChuyen ?? 0)');
+    const soUser = Number('@(ViewBag.SoUser ?? 0)');
+
+    const ctx = document.getElementById('chart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Doanh thu', 'Chuyến', 'Người dùng'],
+            datasets: [{
+                label: 'Thống kê',
+                data: [tongTien, soChuyen, soUser]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
             }
-        });
-    </script>
+        }
+    });
+</script>
 
-</body>
-</html>

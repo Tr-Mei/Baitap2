@@ -220,6 +220,11 @@
     }
 
     updateUI("@(Model?.TrangThai.ToString() ?? "")");
+        if (id === 0) {
+        setInterval(() => {
+            location.reload();
+        }, 3000);
+    }
 </script>
 
 

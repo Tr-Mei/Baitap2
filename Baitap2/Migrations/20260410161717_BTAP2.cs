@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Baitap2.Migrations
 {
     /// <inheritdoc />
-    public partial class Bai2 : Migration
+    public partial class BTAP2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,8 @@ namespace Baitap2.Migrations
                     ChuyenDiId = table.Column<int>(type: "int", nullable: false),
                     NguoiDungId = table.Column<int>(type: "int", nullable: false),
                     SoSao = table.Column<int>(type: "int", nullable: false),
-                    NoiDung = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    NoiDung = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,7 +35,8 @@ namespace Baitap2.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ViDo = table.Column<double>(type: "float", nullable: false),
-                    KinhDo = table.Column<double>(type: "float", nullable: false)
+                    KinhDo = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,12 +49,14 @@ namespace Baitap2.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DienThoai = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MatKhau = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DienThoai = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    MatKhau = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     VaiTro = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    BiKhoa = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,7 +71,8 @@ namespace Baitap2.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChuyenDiId = table.Column<int>(type: "int", nullable: false),
                     SoTien = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    TrangThai = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TrangThai = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,7 +87,8 @@ namespace Baitap2.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NguoiDungId = table.Column<int>(type: "int", nullable: false),
                     Online = table.Column<bool>(type: "bit", nullable: false),
-                    DanhGiaTB = table.Column<double>(type: "float", nullable: false)
+                    DanhGiaTB = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,14 +109,16 @@ namespace Baitap2.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     KhachId = table.Column<int>(type: "int", nullable: false),
                     TaiXeId = table.Column<int>(type: "int", nullable: true),
-                    DiemDon = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DiemDen = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiemDon = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DiemDen = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LoaiXe = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GhiChu = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ThoiGianDat = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GiaDuKien = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TrangThai = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DanhGia = table.Column<int>(type: "int", nullable: true),
+                    NhanXet = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {

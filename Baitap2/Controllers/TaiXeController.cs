@@ -30,8 +30,10 @@ public class TaiXeController : Controller
         {
             // 🔥 CHỈ LẤY CUỐC ĐANG CHỜ TÀI XẾ
             c = _context.ChuyenDis
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefault(x => x.TrangThai == TrangThai.DangTimTaiXe);
+     .Where(x => x.TrangThai == TrangThai.DangTimTaiXe)
+     .OrderByDescending(x => x.Id)
+     .FirstOrDefault();
+
         }
 
         return View(c);
