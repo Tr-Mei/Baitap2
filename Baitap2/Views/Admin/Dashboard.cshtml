@@ -1,46 +1,122 @@
-﻿<h2>⚙️ ADMIN PANEL</h2>
+﻿<h2 style="text-align:center;">⚙️ ADMIN PANEL</h2>
 
-<div style="display:flex">
+<style>
+    body {
+        margin: 0;
+        font-family: Arial;
+        background: #f4f6f9;
+    }
+
+    .wrapper {
+        display: flex;
+        height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+        width: 220px;
+        background: #343a40;
+        color: white;
+        padding-top: 20px;
+    }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+            .sidebar a:hover,
+            .sidebar a.active {
+                background: #495057;
+                color: white;
+            }
+
+    /* CONTENT */
+    .content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .loading {
+        text-align: center;
+        font-size: 18px;
+        color: #888;
+    }
+</style>
+
+<div class="wrapper">
 
     <!-- MENU -->
-    <div style="width:200px;">
+    <div class="sidebar">
         <ul>
-            <li><a href="#" onclick="loadPage('/Admin/KhachHang')">Khách hàng</a></li>
-            <li><a href="#" onclick="loadPage('/Admin/TaiXe')">Tài xế</a></li>
-            <li><a href="#" onclick="loadPage('/Admin/ChuyenDis')">Chuyến đi</a></li>
-            <li><a href="#" onclick="loadPage('/Admin/Gia')">Quản lý giá</a></li>
-            <li><a href="#" onclick="loadPage('/Admin/BaoCao')">Báo cáo</a></li>
-
+            <li><a href="/Admin/KhachHang">👤 Khách hàng</a></li>
+            <li><a href="/Admin/TaiXe">🚗 Tài xế</a></li>
+            <li><a href="/Admin/ChuyenDis">🚕 Chuyến đi</a></li>
+            <li><a href="/Admin/Gia">💰 Quản lý giá</a></li>
+            <li><a href="/Admin/BaoCao">📊 Báo cáo</a></li>
         </ul>
     </div>
 
     <!-- CONTENT -->
-    <div id="content" style="flex:1; padding:20px;">
+    <div id="content" class="content">
         <h3>👉 Chọn chức năng bên trái</h3>
     </div>
 
 </div>
 
 <script>
-    function loadPage(url) {
+    function setActive(link) {
+        document.querySelectorAll(".sidebar a")
+            .forEach(a => a.classList.remove("active"));
+
+        if (link) link.classList.add("active");
+    }
+
+    function loadPage(url, el = null) {
+
+        // loading UI
+        document.getElementById("content").innerHTML =
+            "<div class='loading'>⏳ Đang tải...</div>";
+
         fetch(url)
             .then(res => res.text())
             .then(html => {
                 document.getElementById("content").innerHTML = html;
             });
+
+        if (el) setActive(el);
     }
 
-    // 🔥 bắt tất cả link admin
+    // 🔥 FIX BUG CLICK (dùng closest)
     document.addEventListener("click", function (e) {
-        if (e.target.tagName === "A") {
-            const url = e.target.getAttribute("href");
 
-            if (url && url.startsWith("/Admin")) {
-                e.preventDefault();
-                loadPage(url);
-            }
+        const a = e.target.closest("a");
+        if (!a) return;
+
+        const url = a.getAttribute("href");
+
+        if (url && url.startsWith("/Admin")) {
+            e.preventDefault();
+            loadPage(url, a);
         }
     });
 
-    window.onload = () => loadPage('/Admin/Users');
+    // load mặc định
+    window.onload = () => {
+        const first = document.querySelector(".sidebar a");
+        loadPage("/Admin/Users", first);
+    };
 </script>

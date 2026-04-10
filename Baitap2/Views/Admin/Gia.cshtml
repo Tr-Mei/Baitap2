@@ -3,30 +3,153 @@
     Layout = null;
 }
 
-<h3>💰 Quản lý giá</h3>
-
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Điểm</th>
-        <th>Giá</th>
-        <th>Sửa</th>
-    </tr>
-
-    @foreach (var c in Model)
-    {
-        <tr>
-            <form method="post" action="/Admin/CapNhatGia">
-            <td>@c.Id</td>
-            <td>@c.DiemDon → @c.DiemDen</td>
-            <td>
-                <input name="gia" value="@c.GiaDuKien" />
-                <input type="hidden" name="id" value="@c.Id" />
-            </td>
-            <td>
-                <button>Lưu</button>
-            </td>
-            </form>
-        </tr>
+<style>
+    .card {
+        max-width: 900px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-</table>
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+    }
+
+    th {
+        background: #f1f1f1;
+    }
+
+    tr {
+        border-bottom: 1px solid #eee;
+    }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+    input {
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        width: 100px;
+    }
+
+    button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #28a745;
+        color: white;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background: #218838;
+        }
+
+    .route {
+        font-weight: bold;
+    }
+
+    /* PAGINATION */
+    #pagination {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+        #pagination a {
+            margin: 3px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+    .active-page {
+        background: #007bff;
+        color: white;
+    }
+
+    .normal-page {
+        background: #ddd;
+        color: black;
+    }
+</style>
+
+<div class="card">
+    <h3>💰 Quản lý giá chuyến</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tuyến</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <form method="post" action="/Admin/CapNhatGia">
+                    <td>@c.Id</td>
+
+                    <td class="route">
+                        📍 @c.DiemDon → 🏁 @c.DiemDen
+                    </td>
+
+                    <td>
+                        <input name="gia"
+                               value="@c.GiaDuKien" />
+
+                        <input type="hidden" name="id" value="@c.Id" />
+                    </td>
+
+                    <td>
+                        <button type="submit">💾 Lưu</button>
+                    </td>
+                    </form>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 🔥 PAGINATION -->
+    <div id="pagination">
+        @{
+            int current = ViewBag.CurrentPage;
+            int total = ViewBag.TotalPages;
+
+            if (current > 1)
+            {
+                <a href="/Admin/Gia?page=@(current - 1)" class="normal-page">«</a>
+            }
+
+            for (int i = 1; i <= total; i++)
+            {
+                <a href="/Admin/Gia?page=@i"
+                   class="@(i == current ? "active-page" : "normal-page")">
+                    @i
+                </a>
+            }
+
+            if (current < total)
+            {
+                <a href="/Admin/Gia?page=@(current + 1)" class="normal-page">»</a>
+            }
+        }
+    </div>
+</div>

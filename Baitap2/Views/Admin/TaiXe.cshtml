@@ -3,36 +3,195 @@
     Layout = null;
 }
 
-<h3>🚗 Tài xế</h3>
-
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-    </tr>
-
-    @foreach (var u in Model)
-    {
-        <tr>
-            <td>@u.Id</td>
-            <td>@u.Username</td>
-            <td>@(u.IsActive ? "Hoạt động" : "Bị khóa")</td>
-            <td>
-                <a href="/Admin/ChiTiet/@u.Id">Xem</a> |
-                <a href="/Admin/Sua/@u.Id">Sửa</a> |
-                <a href="/Admin/Xoa/@u.Id">Xóa</a> |
-
-                @if (u.IsActive)
-                {
-                    <a href="/Admin/Khoa/@u.Id">Khóa</a>
-                }
-                else
-                {
-                    <a href="/Admin/MoKhoa/@u.Id">Mở</a>
-                }
-            </td>
-        </tr>
+<style>
+    .card {
+        max-width: 1000px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-</table>
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background: #f1f1f1;
+    }
+
+    tr {
+        border-bottom: 1px solid #eee;
+    }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+    .badge {
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .active {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .blocked {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .actions a {
+        text-decoration: none;
+        margin-right: 5px;
+    }
+
+    .btn {
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .view {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .edit {
+        background: #ffc107;
+        color: black;
+    }
+
+    .delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .lock {
+        background: #6c757d;
+        color: white;
+    }
+
+    .unlock {
+        background: #28a745;
+        color: white;
+    }
+
+    /* PAGINATION */
+    #pagination {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+        #pagination a {
+            margin: 3px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+    .active-page {
+        background: #007bff;
+        color: white;
+    }
+
+    .normal-page {
+        background: #ddd;
+        color: black;
+    }
+</style>
+
+<div class="card">
+    <h3>🚗 Quản lý tài xế</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tài xế</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.Id</td>
+
+                    <td>🚗 @u.Username</td>
+
+                    <td>
+                        <span class="badge @(u.IsActive ? "active" : "blocked")">
+                            @(u.IsActive ? "Hoạt động" : "Bị khóa")
+                        </span>
+                    </td>
+
+                    <td class="actions">
+                        <a href="/Admin/ChiTiet/@u.Id" class="btn view">👁 Xem</a>
+                        <a href="/Admin/Sua/@u.Id" class="btn edit">✏️ Sửa</a>
+                        <a href="/Admin/Xoa/@u.Id"
+                           class="btn delete"
+                           onclick="return confirm('Xóa tài xế này?')">
+                            🗑 Xóa
+                        </a>
+
+                        @if (u.IsActive)
+                        {
+                            <a href="/Admin/Khoa/@u.Id" class="btn lock">🔒 Khóa</a>
+                        }
+                        else
+                        {
+                            <a href="/Admin/MoKhoa/@u.Id" class="btn unlock">🔓 Mở</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 🔥 PAGINATION -->
+    <div id="pagination">
+        @{
+            int current = ViewBag.CurrentPage;
+            int total = ViewBag.TotalPages;
+
+            if (current > 1)
+            {
+                <a href="/Admin/TaiXe?page=@(current - 1)" class="normal-page">«</a>
+            }
+
+            for (int i = 1; i <= total; i++)
+            {
+                <a href="/Admin/TaiXe?page=@i"
+                   class="@(i == current ? "active-page" : "normal-page")">
+                    @i
+                </a>
+            }
+
+            if (current < total)
+            {
+                <a href="/Admin/TaiXe?page=@(current + 1)" class="normal-page">»</a>
+            }
+        }
+    </div>
+</div>

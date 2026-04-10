@@ -1,33 +1,116 @@
 ﻿@model Baitap2.Models.ChuyenDi
 
-<h2>🚗 Tài xế</h2>
+<style>
+    body {
+        background: #f5f7fa;
+        font-family: Arial;
+    }
 
-@if (Model == null)
-{
-    <h3>👋 Xin chào @Context.Session.GetString("Ten")</h3>
-    <p>🚫 Hiện chưa có cuốc nào</p>
-}
-else
-{
-    <p><b>@Model.DiemDon → @Model.DiemDen</b></p>
-    <h3 id="tt"></h3>
-    <div id="map" style="height:300px;"></div>
-    <div id="actions"></div>
-}
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .route {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .status {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        margin-top: 10px;
+        background: #e3f2fd;
+    }
+
+    .actions a {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        color: white;
+    }
+
+    .btn-nhan {
+        background: #28a745;
+    }
+
+    .btn-den {
+        background: #17a2b8;
+    }
+
+    .btn-batdau {
+        background: #ffc107;
+        color: black;
+    }
+
+    .btn-hoanthanh {
+        background: #007bff;
+    }
+
+    #map {
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container">
+    <h2>🚗 Tài xế</h2>
+
+    @if (Model == null)
+    {
+        <div class="card">
+            <h3>👋 Xin chào @Context.Session.GetString("Ten")</h3>
+            <p style="text-align:center;">🚫 Chưa có cuốc nào</p>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="route">
+                📍 @Model.DiemDon → 🏁 @Model.DiemDen
+            </div>
+
+            <div id="tt" class="status"></div>
+
+            <div id="actions" class="actions"></div>
+        </div>
+
+        <div class="card">
+            <div id="map"></div>
+        </div>
+    }
+</div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
 <script>
-    // 🔥 FIX ID
     const id = @(Model?.Id ?? 0);
 
     let map, marker;
     let conn;
     let gpsRunning = false;
 
-    // ===== MAP =====
     if (id > 0) {
         map = L.map('map').setView([21.0285, 105.8542], 13);
 
@@ -37,7 +120,6 @@ else
         marker = L.marker([21.0285, 105.8542]).addTo(map);
     }
 
-    // ===== GPS =====
     function runGPS() {
         if (gpsRunning) return;
         gpsRunning = true;
@@ -71,7 +153,6 @@ else
         }
     }
 
-    // ===== UI =====
     function updateUI(status) {
         const tt = document.getElementById("tt");
         const actions = document.getElementById("actions");
@@ -82,24 +163,24 @@ else
 
         switch (status) {
             case "DangTimTaiXe":
-                tt.innerText = "🕐 Chờ nhận cuốc";
-                actions.innerHTML = `<a href="/TaiXe/Nhan/${id}">Nhận</a>`;
+                tt.innerText = "🕐 Có cuốc mới";
+                actions.innerHTML = `<a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>`;
                 break;
 
             case "DaNhan":
-                tt.innerText = "🚗 Đã nhận";
-                actions.innerHTML = `<a href="/TaiXe/Den/${id}">Đã đến</a>`;
+                tt.innerText = "🚗 Đã nhận cuốc";
+                actions.innerHTML = `<a class="btn-den" href="/TaiXe/Den/${id}">Đã tới điểm đón</a>`;
                 break;
 
             case "DaDen":
-                tt.innerText = "📍 Đã tới";
-                actions.innerHTML = `<a href="/TaiXe/BatDau/${id}">Bắt đầu</a>`;
+                tt.innerText = "📍 Đã tới điểm đón";
+                actions.innerHTML = `<a class="btn-batdau" href="/TaiXe/BatDau/${id}">Bắt đầu chuyến</a>`;
                 break;
 
             case "DangDi":
-                tt.innerText = "🚕 Đang chở";
+                tt.innerText = "🚕 Đang chở khách";
                 runGPS();
-                actions.innerHTML = `<a href="/TaiXe/HoanThanh/${id}">Hoàn thành</a>`;
+                actions.innerHTML = `<a class="btn-hoanthanh" href="/TaiXe/HoanThanh/${id}">Hoàn thành</a>`;
                 break;
 
             case "HoanThanh":
@@ -107,23 +188,19 @@ else
                 break;
 
             case "DaHuy":
-                tt.innerText = "❌ Khách đã hủy chuyến";
+                tt.innerText = "❌ Khách đã hủy";
 
                 if (map) {
                     map.remove();
                 }
 
-                actions.innerHTML = "";
-
                 setTimeout(() => {
                     location.reload();
                 }, 2000);
-
                 break;
         }
     }
 
-    // ===== SIGNALR =====
     if (id > 0) {
         conn = new signalR.HubConnectionBuilder()
             .withUrl("/rideHub")
@@ -134,16 +211,13 @@ else
         });
 
         conn.on("NhanCapNhat", data => {
-
             if (data.trangThai === "DaHuy") {
                 updateUI("DaHuy");
                 return;
             }
-
             updateUI(data.trangThai);
         });
     }
 
-    // ===== INIT =====
     updateUI("@(Model?.TrangThai.ToString() ?? "")");
 </script>

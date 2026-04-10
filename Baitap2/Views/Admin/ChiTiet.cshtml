@@ -3,11 +3,162 @@
     Layout = null;
 }
 
-<h3>👤 Chi tiết người dùng</h3>
+<style>
+    body {
+        background: linear-gradient(135deg, #e3f2fd, #f5f7fa);
+        font-family: Arial;
+    }
 
-<p>ID: @Model.Id</p>
-<p>Username: @Model.Username</p>
-<p>Email: @Model.Email</p>
-<p>Điện thoại: @Model.DienThoai</p>
-<p>Vai trò: @Model.VaiTro</p>
-<p>Trạng thái: @(Model.IsActive ? "Hoạt động" : "Bị khóa")</p>
+    .container {
+        max-width: 500px;
+        margin: 40px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .avatar img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    h3 {
+        margin-bottom: 10px;
+    }
+
+    .info {
+        text-align: left;
+        margin-top: 15px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .label {
+        color: #555;
+    }
+
+    .value {
+        font-weight: bold;
+    }
+
+    .status {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    .active {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .blocked {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .actions {
+        margin-top: 15px;
+    }
+
+        .actions a button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    .btn-lock {
+        background: #e53935;
+        color: white;
+    }
+
+    .btn-unlock {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-back {
+        background: #607d8b;
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <div class="card">
+
+        <!-- Avatar -->
+        <div class="avatar">
+            <img src="https://i.pravatar.cc/100?u=@Model.Id" />
+        </div>
+
+        <h3>👤 @Model.Username</h3>
+
+        <!-- Info -->
+        <div class="info">
+            <div class="row">
+                <div class="label">ID</div>
+                <div class="value">@Model.Id</div>
+            </div>
+
+            <div class="row">
+                <div class="label">Email</div>
+                <div class="value">@Model.Email</div>
+            </div>
+
+            <div class="row">
+                <div class="label">Điện thoại</div>
+                <div class="value">@Model.DienThoai</div>
+            </div>
+
+            <div class="row">
+                <div class="label">Vai trò</div>
+                <div class="value">@Model.VaiTro</div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status @(Model.IsActive ? "active" : "blocked")">
+            @(Model.IsActive ? "✅ Đang hoạt động" : "❌ Đã bị khóa")
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+
+            @if (Model.IsActive)
+            {
+                <a href="/Admin/ToggleUser/@Model.Id">
+                    <button class="btn-lock">🔒 Khóa tài khoản</button>
+                </a>
+            }
+            else
+            {
+                <a href="/Admin/ToggleUser/@Model.Id">
+                    <button class="btn-unlock">🔓 Mở khóa</button>
+                </a>
+            }
+
+            <a href="/Admin/Index">
+                <button class="btn-back">⬅️ Quay lại</button>
+            </a>
+
+        </div>
+
+    </div>
+</div>

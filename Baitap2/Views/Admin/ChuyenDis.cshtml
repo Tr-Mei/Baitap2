@@ -3,15 +3,188 @@
     Layout = null;
 }
 
-<h3>🚕 Chuyến đi</h3>
-
-<table border="1">
-    @foreach (var c in Model)
-    {
-        <tr>
-            <td>@c.Id</td>
-            <td>@c.DiemDon → @c.DiemDen</td>
-            <td>@c.TrangThai</td>
-        </tr>
+<style>
+    body {
+        background: #f4f6f9;
+        font-family: Arial;
     }
-</table>
+
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+    }
+
+    th {
+        background: #f1f1f1;
+    }
+
+    tr {
+        border-bottom: 1px solid #eee;
+        transition: 0.2s;
+    }
+
+        tr:hover {
+            background: #f1f7ff;
+            cursor: pointer;
+        }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .dangtim {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .danhan {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .dangdi {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .hoanthanh {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .huy {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .price {
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    /* PAGINATION */
+    #pagination {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+        #pagination a {
+            margin: 3px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+    .active-page {
+        background: #007bff;
+        color: white;
+    }
+
+    .normal-page {
+        background: #ddd;
+        color: black;
+    }
+</style>
+
+<div class="container">
+    <div class="card">
+        <h3>🚕 Danh sách chuyến đi</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tuyến</th>
+                    <th>Giá</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    string cls = "";
+
+                    switch (c.TrangThai.ToString())
+                    {
+                        case "DangTimTaiXe": cls = "dangtim"; break;
+                        case "DaNhan": cls = "danhan"; break;
+                        case "DangDi": cls = "dangdi"; break;
+                        case "HoanThanh": cls = "hoanthanh"; break;
+                        case "DaHuy": cls = "huy"; break;
+                    }
+
+                    <tr onclick="location.href='/Admin/ChiTietChuyen/@c.Id'">
+                        <td>@c.Id</td>
+
+                        <td>
+                            📍 @c.DiemDon <br />
+                            → 🏁 @c.DiemDen
+                        </td>
+
+                        <td class="price">
+                            @c.GiaDuKien.ToString("N0") VNĐ
+                        </td>
+
+                        <td>
+                            <span class="badge @cls">
+                                @c.TrangThai
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- 🔥 SERVER PAGINATION -->
+        <div id="pagination">
+            @{
+                int current = ViewBag.CurrentPage;
+                int total = ViewBag.TotalPages;
+
+                if (current > 1)
+                {
+                    <a href="/Admin/ChuyenDis?page=@(current - 1)" class="normal-page">«</a>
+                }
+
+                for (int i = 1; i <= total; i++)
+                {
+                    <a href="/Admin/ChuyenDis?page=@i"
+                       class="@(i == current ? "active-page" : "normal-page")">
+                        @i
+                    </a>
+                }
+
+                if (current < total)
+                {
+                    <a href="/Admin/ChuyenDis?page=@(current + 1)" class="normal-page">»</a>
+                }
+            }
+        </div>
+
+    </div>
+</div>

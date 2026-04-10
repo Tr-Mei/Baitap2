@@ -1,48 +1,168 @@
-﻿@{
+﻿
+
+
+@{
     ViewData["Title"] = "Đặt xe";
 }
 
-<h2>🚕 Đặt xe</h2>
+<style>
+    body {
+        background: linear-gradient(135deg, #e3f2fd, #f5f7fa);
+        font-family: Arial, sans-serif;
+    }
 
-<form method="post">
-    <input name="DiemDon" placeholder="Điểm đón (vd: Hà Nội)" required />
-    <br /><br />
+    .card {
+        max-width: 480px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
 
-    <input name="DiemDen" placeholder="Điểm đến (vd: Thái Nguyên)" required />
-    <br /><br />
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-    <input name="LoaiXe" placeholder="Loại xe (Bike/Car)" />
-    <br /><br />
+    .form-group {
+        position: relative;
+        margin-bottom: 15px;
+    }
 
-    <input type="datetime-local" name="ThoiGianDat" />
-    <br /><br />
+        .form-group i {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            color: #888;
+        }
 
-    <textarea name="GhiChu" placeholder="Ghi chú"></textarea>
-    <br /><br />
+    input, textarea {
+        width: 100%;
+        padding: 10px 10px 10px 35px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        transition: 0.2s;
+    }
 
-    <!-- 🔥 KM ẩn -->
-    <input type="hidden" name="km" id="km" />
+        input:focus, textarea:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 6px rgba(40,167,69,0.3);
+        }
 
-    <!-- 💰 HIỂN THỊ GIÁ -->
-    <p id="gia" style="font-weight:bold;color:green;"></p>
+    textarea {
+        resize: none;
+        padding-left: 10px;
+    }
 
-    <button type="submit">Đặt xe</button>
-</form>
+    /* 🔥 chọn xe */
+    .car-type {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+        .car-type button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+            .car-type button.active {
+                background: #28a745;
+                color: white;
+                border: none;
+            }
+
+    /* 💰 giá */
+    .price-box {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        background: #e8f5e9;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #2e7d32;
+    }
+
+    button.submit-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #28a745;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        button.submit-btn:hover {
+            background: #218838;
+        }
+</style>
+
+<div class="card">
+    <h2>🚕 Đặt xe</h2>
+
+    <form method="post">
+
+        <div class="form-group">
+            <i>📍</i>
+            <input name="DiemDon" placeholder="Điểm đón" required />
+        </div>
+
+        <div class="form-group">
+            <i>🏁</i>
+            <input name="DiemDen" placeholder="Điểm đến" required />
+        </div>
+
+        <!-- 🔥 chọn xe kiểu app -->
+        <div class="car-type">
+            <button type="button" class="active" onclick="chonXe(this, 'Car')">🚗 Ô tô</button>
+            <button type="button" onclick="chonXe(this, 'Bike')">🏍 Xe máy</button>
+        </div>
+        <input type="hidden" name="loaiXe" id="loaiXe" value="Car" />
+
+        <div class="form-group">
+            <input type="datetime-local" name="ThoiGianDat" />
+        </div>
+
+        <div class="form-group">
+            <textarea name="GhiChu" rows="3" placeholder="📝 Ghi chú"></textarea>
+        </div>
+
+        <!-- 🔥 KM -->
+        <input type="hidden" name="km" id="km" />
+
+        <!-- 💰 GIÁ -->
+        <div id="gia" class="price-box"></div>
+
+        <button type="submit" class="submit-btn">🚀 Đặt xe ngay</button>
+    </form>
+</div>
 
 <script>
+    // chọn loại xe
+    function chonXe(btn, loai) {
+        document.querySelectorAll('.car-type button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById("loaiXe").value = loai;
+    }
+
     // ===== GEOCODE =====
-        async function layToaDo(diaChi) {
+    async function layToaDo(diaChi) {
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
 
         const res = await fetch(url, {
-            headers: {
-                'User-Agent': 'demo-app' // 🔥 tránh bị chặn
-            }
+            headers: { 'User-Agent': 'demo-app' }
         });
 
         const data = await res.json();
-
-        console.log("GEOCODE:", diaChi, data); // 👈 DEBUG
 
         if (data.length > 0) {
             return {
@@ -53,7 +173,6 @@
 
         return null;
     }
-
 
     // ===== TÍNH KM =====
     async function tinhKmVaGia() {
@@ -80,30 +199,23 @@
             return;
         }
 
-        const distance = data.routes[0].distance; // mét
-        const km = distance / 1000;
-
-        // 🔥 GÁN KM vào form
+        const km = data.routes[0].distance / 1000;
         document.getElementById("km").value = km;
 
-        // 💰 TÍNH GIÁ
         const gia = 10000 + km * 8000;
 
         document.getElementById("gia").innerText =
-            "💰 Giá dự kiến: " + gia.toLocaleString() + " VNĐ (" + km.toFixed(2) + " km)";
+            "💰 " + gia.toLocaleString() + " VNĐ  •  " + km.toFixed(2) + " km";
     }
 
-    // ===== TỰ ĐỘNG TÍNH KHI NHẬP =====
     document.querySelector('[name="DiemDon"]').addEventListener("change", tinhKmVaGia);
     document.querySelector('[name="DiemDen"]').addEventListener("change", tinhKmVaGia);
 
-    // ===== SUBMIT =====
     document.querySelector("form").addEventListener("submit", async function (e) {
         e.preventDefault();
 
         await tinhKmVaGia();
 
-        // kiểm tra km trước khi gửi
         const km = document.getElementById("km").value;
 
         if (!km || km == 0) {

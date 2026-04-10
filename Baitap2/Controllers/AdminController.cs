@@ -28,27 +28,50 @@ public class AdminController : Controller
     // =========================
     // 👤 KHÁCH HÀNG
     // =========================
-    public IActionResult KhachHang()
+    public IActionResult KhachHang(int page = 1)
     {
-        var list = _context.NguoiDungs
-            .Where(x => x.VaiTro == VaiTro.Khach)
+        int pageSize = 5;
+
+        var query = _context.NguoiDungs
+            .Where(x => x.VaiTro == VaiTro.Khach);
+
+        var total = query.Count();
+
+        var data = query
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToList();
 
-        return PartialView("KhachHang", list);
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+
+        return PartialView("KhachHang", data);
     }
 
     // =========================
     // 🚗 TÀI XẾ
     // =========================
-    public IActionResult TaiXe()
+    public IActionResult TaiXe(int page = 1)
     {
-        var list = _context.NguoiDungs
-            .Where(x => x.VaiTro == VaiTro.TaiXe)
+        int pageSize = 5;
+
+        var query = _context.NguoiDungs
+            .Where(x => x.VaiTro == VaiTro.TaiXe);
+
+        var total = query.Count();
+
+        var data = query
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToList();
 
-        return PartialView("TaiXe", list);
-    }
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
+        return PartialView("TaiXe", data);
+    }
     // =========================
     // 🔍 CHI TIẾT USER
     // =========================
@@ -147,19 +170,50 @@ public class AdminController : Controller
     // =========================
     // 🚕 CHUYẾN ĐI
     // =========================
-    public IActionResult ChuyenDis()
+    //public IActionResult ChuyenDis()
+    //{
+    //    var list = _context.ChuyenDis.ToList();
+    //    return PartialView("ChuyenDis", list);
+    //}
+
+    public IActionResult ChuyenDis(int page = 1)
     {
-        var list = _context.ChuyenDis.ToList();
-        return PartialView("ChuyenDis", list);
+        int pageSize = 5;
+
+        var total = _context.ChuyenDis.Count();
+
+        var data = _context.ChuyenDis
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+
+        return PartialView("ChuyenDis", data); // 🔥 phải là PartialView
     }
+
 
     // =========================
     // 💰 QUẢN LÝ GIÁ
     // =========================
-    public IActionResult Gia()
+    public IActionResult Gia(int page = 1)
     {
-        var list = _context.ChuyenDis.ToList();
-        return PartialView("Gia", list);
+        int pageSize = 5;
+
+        var total = _context.ChuyenDis.Count();
+
+        var data = _context.ChuyenDis
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+
+        return PartialView("Gia", data);
     }
 
     [HttpPost]

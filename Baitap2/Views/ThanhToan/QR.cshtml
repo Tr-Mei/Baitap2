@@ -1,21 +1,86 @@
 ﻿@model Baitap2.Models.ThanhToan
 
-<h2>💰 Thanh toán chuyến đi</h2>
+<style>
+    body {
+        background: linear-gradient(135deg, #e8f5e9, #f5f7fa);
+        font-family: Arial;
+    }
 
-<p>Số tiền: <b>@Model.SoTien VNĐ</b></p>
+    .container {
+        max-width: 400px;
+        margin: 40px auto;
+    }
 
-<!-- 🔥 QR DEMO -->
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ThanhToan_@Model.Id" />
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
 
-<br />
-<br />
+    h2 {
+        margin-bottom: 15px;
+    }
 
-<p>📱 Khách quét mã để thanh toán</p>
+    .amount {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2e7d32;
+        margin-bottom: 15px;
+    }
 
-<!-- DEMO BUTTON -->
-<a href="/ThanhToan/XacNhan/@Model.Id">
-    <button style="background:green;color:white;padding:10px;">
-        ✅ Xác nhận đã thanh toán
-    </button>
-</a>
+    .qr-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 12px;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
 
+    .note {
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .btn-confirm {
+        width: 100%;
+        padding: 12px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-confirm:hover {
+            background: #218838;
+        }
+</style>
+
+<div class="container">
+    <div class="card">
+        <h2>💰 Thanh toán</h2>
+
+        <div class="amount">
+            @Model.SoTien.ToString("N0") VNĐ
+        </div>
+
+        <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ThanhToan_@Model.Id" />
+        </div>
+
+        <div class="note">
+            📱 Quét mã để thanh toán
+        </div>
+
+        <a href="/ThanhToan/XacNhan/@Model.Id">
+            <button class="btn-confirm">
+                ✅ Đã thanh toán
+            </button>
+        </a>
+    </div>
+</div>

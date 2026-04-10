@@ -1,13 +1,37 @@
-﻿<h2>Đăng nhập</h2>
+﻿<h2 style="text-align:center;">🔐 Đăng nhập</h2>
 
-<form method="post" action="/Auth/Login">
-    <input name="username" type="text" placeholder="Tên đăng nhập" required />
-    <br />
-    <input name="password" type="password" placeholder="Mật khẩu" required />
-    <br />
-    <button type="submit">Đăng nhập</button>
-</form>
+<div style="display:flex; justify-content:center; margin-top:30px;">
+    <form method="post" action="/Auth/Login"
+          style="width:350px; padding:25px; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 10px #ddd;">
 
-<p style="color:red">@ViewBag.Error</p>
+        <div style="margin-bottom:15px;">
+            <label>Tên đăng nhập</label>
+            <input name="username" type="text" placeholder="Nhập username"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
 
-<a href="/Auth/Register">Chưa có tài khoản? Đăng ký</a>
+        <div style="margin-bottom:20px;">
+            <label>Mật khẩu</label>
+            <input name="password" type="password" placeholder="Nhập mật khẩu"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
+
+        <!-- HIỂN THỊ LỖI -->
+        @if (ViewBag.Error != null)
+        {
+            <div style="color:red; margin-bottom:15px; text-align:center;">
+                @ViewBag.Error
+            </div>
+        }
+
+        <button type="submit"
+                style="width:100%; padding:10px; background:#28a745; color:white; border:none; border-radius:5px;">
+            Đăng nhập
+        </button>
+
+        <div style="text-align:center; margin-top:15px;">
+            <a href="/Auth/Register">Chưa có tài khoản? Đăng ký</a>
+        </div>
+
+    </form>
+</div>

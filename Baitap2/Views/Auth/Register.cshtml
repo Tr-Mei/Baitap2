@@ -1,23 +1,48 @@
-﻿﻿<h2>Đăng ký</h2>
+﻿
 
-<form method="post" action="/Auth/Register">
+<h2 style="text-align:center;">📝 Đăng ký</h2>
 
-    <input name="username" placeholder="Tên đăng nhập" required />
-    <br />
+<div style="display:flex; justify-content:center; margin-top:30px;">
+    <form method="post" action="/Auth/Register"
+          style="width:350px; padding:25px; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 10px #ddd;">
 
-    <input name="email" placeholder="Email" required />
-    <br />
-    <input name="dienThoai" placeholder="Điện thoại" required />
-    <br />
-    <input name="password" type="password" placeholder="Password" required />
-    <br />
+        <div style="margin-bottom:15px;">
+            <label>Tên đăng nhập</label>
+            <input name="username" placeholder="Nhập username"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
 
-    <select name="vaiTro">
-        <option value="Khach">Khách</option>
-        <option value="TaiXe">Tài xế</option>
-    </select>
+        <div style="margin-bottom:15px;">
+            <label>Email</label>
+            <input name="email" placeholder="Nhập email"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
 
-    <br />
+        <div style="margin-bottom:15px;">
+            <label>Điện thoại</label>
+            <input name="dienThoai" placeholder="Nhập số điện thoại"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
 
-    <button type="submit">Đăng ký</button>
-</form>
+        <div style="margin-bottom:15px;">
+            <label>Mật khẩu</label>
+            <input name="password" type="password" placeholder="Nhập password"
+                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label>Vai trò</label>
+            <select name="vaiTro"
+                    style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+                <option value="Khach">Khách</option>
+                <option value="TaiXe">Tài xế</option>
+            </select>
+        </div>
+
+        <button type="submit"
+                style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:5px;">
+            Đăng ký
+        </button>
+
+    </form>
+</div>

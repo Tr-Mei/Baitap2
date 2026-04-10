@@ -2,8 +2,161 @@
     Layout = null;
 }
 
-<h3>📊 Báo cáo hệ thống</h3>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Báo cáo</title>
 
-<p>💰 Tổng doanh thu: <b>@ViewBag.TongTien VNĐ</b></p>
-<p>🚕 Tổng chuyến: <b>@ViewBag.SoChuyen</b></p>
-<p>👤 Tổng người dùng: <b>@ViewBag.SoUser</b></p>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f4f6f9;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .money {
+            color: #28a745;
+        }
+
+        .trip {
+            color: #007bff;
+        }
+
+        .user {
+            color: #ff9800;
+        }
+
+        .chart-box {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h3>📊 Báo cáo hệ thống</h3>
+
+        <!-- CARD -->
+        <div class="grid">
+            <div class="card">
+                <div class="icon">💰</div>
+                <div id="money" class="value money">0</div>
+                <div>Tổng doanh thu</div>
+            </div>
+
+            <div class="card">
+                <div class="icon">🚕</div>
+                <div id="trip" class="value trip">0</div>
+                <div>Tổng chuyến</div>
+            </div>
+
+            <div class="card">
+                <div class="icon">👤</div>
+                <div id="user" class="value user">0</div>
+                <div>Người dùng</div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-box">
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA =====
+        const tongTien = @ViewBag.TongTien;
+        const soChuyen = @ViewBag.SoChuyen;
+        const soUser = @ViewBag.SoUser;
+
+        // ===== ANIMATION COUNT =====
+        function animateValue(id, end, duration) {
+            let obj = document.getElementById(id);
+            let start = 0;
+            let startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                let progress = timestamp - startTime;
+                let value = Math.floor(progress / duration * end);
+
+                if (value > end) value = end;
+
+                obj.innerText = value.toLocaleString();
+
+                if (progress < duration) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        animateValue("money", tongTien, 1000);
+        animateValue("trip", soChuyen, 1000);
+        animateValue("user", soUser, 1000);
+
+        // ===== CHART =====
+        const ctx = document.getElementById('chart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Doanh thu', 'Chuyến', 'Người dùng'],
+                datasets: [{
+                    label: 'Thống kê',
+                    data: [tongTien, soChuyen, soUser]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+
+</body>
+</html>
