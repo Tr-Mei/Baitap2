@@ -1,0 +1,115 @@
+﻿
+
+
+
+@model Baitap2.Models.ChuyenDi
+
+<h2>🚕 Theo dõi chuyến</h2>
+
+@if (Model == null)
+{
+    <h3>❌ Không có chuyến</h3>
+}
+else
+{
+    <p><b>@Model.DiemDon → @Model.DiemDen</b></p>
+    <h3 id="tt"></h3>
+    <div id="map" style="height:300px;"></div>
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+    const id = "@Model?.Id";
+
+    // ===== MAP =====
+    const map = L.map('map').setView([21.0285, 105.8542], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        .addTo(map);
+
+    const marker = L.marker([21.0285, 105.8542]).addTo(map);
+
+    // ===== GEOCODE (địa chỉ → tọa độ)
+    async function layToaDo(diaChi) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon)
+            };
+        }
+        return null;
+    }
+
+    // ===== VẼ ĐƯỜNG =====
+    async function veDuong() {
+        const diemDon = await layToaDo("@Model.DiemDon");
+        const diemDen = await layToaDo("@Model.DiemDen");
+
+        if (!diemDon || !diemDen) return;
+
+        const url = `https://router.project-osrm.org/route/v1/driving/${diemDon.lng},${diemDon.lat};${diemDen.lng},${diemDen.lat}?overview=full&geometries=geojson`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const coords = data.routes[0].geometry.coordinates;
+        const latlngs = coords.map(c => [c[1], c[0]]);
+
+        L.polyline(latlngs, { color: 'red' }).addTo(map);
+        map.fitBounds(latlngs);
+    }
+
+    veDuong();
+
+    // ===== UI =====
+    function updateUI(status) {
+        const tt = document.getElementById("tt");
+
+        switch (status) {
+            case "DangTimTaiXe":
+                tt.innerText = "🔍 Đang tìm tài xế...";
+                break;
+            case "DaNhan":
+                tt.innerText = "🚗 Đã có tài xế";
+                break;
+            case "DaDen":
+                tt.innerText = "📍 Tài xế đã tới";
+                break;
+            case "DangDi":
+                tt.innerText = "🚕 Đang di chuyển";
+                break;
+            case "HoanThanh":
+                tt.innerText = "✅ Hoàn thành";
+                break;
+        }
+    }
+
+    // ===== SIGNALR =====
+    const conn = new signalR.HubConnectionBuilder()
+        .withUrl("/rideHub")
+        .build();
+
+    conn.start().then(() => {
+        conn.invoke("ThamGiaChuyen", id);
+    });
+
+    // nhận trạng thái
+    conn.on("NhanCapNhat", data => {
+        updateUI(data.trangThai);
+    });
+
+    // nhận GPS từ tài xế
+    conn.on("CapNhatViTri", (lat, lng) => {
+        marker.setLatLng([lat, lng]);
+        map.setView([lat, lng]);
+    });
+
+    // INIT
+    updateUI("@Model?.TrangThai".toString());
+</script>

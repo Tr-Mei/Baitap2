@@ -1,0 +1,106 @@
+﻿
+
+
+@model Baitap2.Models.ChuyenDi
+
+<h2>🚗 Tài xế</h2>
+
+@if (Model == null)
+{
+    <h3>❌ Chưa có cuốc</h3>
+}
+else
+{
+    <p><b>@Model.DiemDon → @Model.DiemDen</b></p>
+    <h3 id="tt"></h3>
+    <div id="map" style="height:300px;"></div>
+    <div id="actions"></div>
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+    const id = "@Model?.Id";
+
+    // ===== MAP =====
+    const map = L.map('map').setView([21.0285, 105.8542], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        .addTo(map);
+
+    const marker = L.marker([21.0285, 105.8542]).addTo(map);
+
+    let gpsRunning = false;
+
+    // ===== GPS THẬT =====
+    function runGPS() {
+        if (gpsRunning) return;
+        gpsRunning = true;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng]);
+
+                // gửi cho khách
+                conn.invoke("GuiViTri", id, lat, lng);
+            });
+        }
+    }
+
+    // ===== UI =====
+    function updateUI(status) {
+        const tt = document.getElementById("tt");
+        const actions = document.getElementById("actions");
+
+        actions.innerHTML = "";
+
+        switch (status) {
+            case "DangTimTaiXe":
+                tt.innerText = "🕐 Chờ nhận cuốc";
+                actions.innerHTML = `<a href="/TaiXe/Nhan/${id}">Nhận</a>`;
+                break;
+
+            case "DaNhan":
+                tt.innerText = "🚗 Đã nhận";
+                actions.innerHTML = `<a href="/TaiXe/Den/${id}">Đã đến</a>`;
+                break;
+
+            case "DaDen":
+                tt.innerText = "📍 Đã tới";
+                actions.innerHTML = `<a href="/TaiXe/BatDau/${id}">Bắt đầu</a>`;
+                break;
+
+            case "DangDi":
+                tt.innerText = "🚕 Đang chở";
+                runGPS();
+                actions.innerHTML = `<a href="/TaiXe/HoanThanh/${id}">Hoàn thành</a>`;
+                break;
+
+            case "HoanThanh":
+                tt.innerText = "🏁 Hoàn thành";
+                break;
+        }
+    }
+
+    // ===== SIGNALR =====
+    const conn = new signalR.HubConnectionBuilder()
+        .withUrl("/rideHub")
+        .build();
+
+    conn.start().then(() => {
+        conn.invoke("ThamGiaChuyen", id);
+    });
+
+    conn.on("NhanCapNhat", data => {
+        updateUI(data.trangThai);
+    });
+
+    // INIT
+    updateUI("@Model?.TrangThai".toString());
+</script>

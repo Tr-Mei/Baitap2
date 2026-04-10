@@ -1,0 +1,10 @@
+﻿<h2>Danh sách Tài xế</h2>
+
+@foreach (var tx in Model)
+{
+    <p>
+        ID: @tx.Id - Online: @tx.Online
+        <a href="/Admin/ToggleOnline/@tx.Id">On/Off</a>
+    </p>
+}
+

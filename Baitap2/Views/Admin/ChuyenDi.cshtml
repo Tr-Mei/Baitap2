@@ -1,0 +1,9 @@
+﻿<h2>Danh sách chuyến</h2>
+
+@foreach (var c in Model)
+{
+    <p>
+        @c.DiemDon → @c.DiemDen | @c.TrangThai
+        <a href="/Admin/DieuPhoi/@c.Id">Điều phối</a>
+    </p>
+}

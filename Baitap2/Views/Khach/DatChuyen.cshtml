@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Đặt xe";
+}
+
+<h2>🚕 Đặt xe</h2>
+
+<form method="post">
+    <input name="DiemDon" placeholder="Điểm đón" required />
+    <br /><br />
+
+    <input name="DiemDen" placeholder="Điểm đến" required />
+    <br /><br />
+
+    <input name="LoaiXe" placeholder="Loại xe (Bike/Car)" />
+    <br /><br />
+
+    <input type="datetime-local" name="ThoiGianDat" />
+    <br />
+    <textarea name="GhiChu" placeholder="Ghi chú"></textarea>
+    <br />
+    <button type="submit">Đặt xe</button>
+</form>

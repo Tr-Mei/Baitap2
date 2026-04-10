@@ -1,0 +1,23 @@
+﻿<h2>Đăng ký</h2>
+
+<form method="post" action="/Auth/Register">
+
+    <input name="username" placeholder="Tên đăng nhập" required />
+    <br />
+
+    <input name="email" placeholder="Email" required />
+    <br />
+    <input name="dienThoai" placeholder="Điện thoại" required />
+     <br />
+    <input name="password" type="password" placeholder="Password" required />
+    <br />
+
+    <select name="vaiTro">
+        <option value="Khach">Khách</option>
+        <option value="TaiXe">Tài xế</option>
+    </select>
+
+    <br />
+
+    <button type="submit">Đăng ký</button>
+</form>

@@ -1,0 +1,22 @@
+﻿<h2>⭐ Đánh giá tài xế</h2>
+
+<form method="post">
+    <input type="hidden" name="ChuyenDiId" value="@Context.Request.Query["rideId"]" />
+
+    <label>Số sao:</label>
+    <select name="SoSao">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option selected>5</option>
+    </select>
+
+    <br /><br />
+
+    <textarea name="NoiDung" placeholder="Nhận xét"></textarea>
+
+    <br /><br />
+
+    <button>Gửi</button>
+</form>

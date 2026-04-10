@@ -1,0 +1,9 @@
+﻿<h2>Danh sách User</h2>
+
+@foreach (var u in Model)
+{
+    <p>
+        @u.Ten - @u.VaiTro
+        <a href="/Admin/ToggleUser/@u.Id">Bật/Tắt</a>
+    </p>
+}
