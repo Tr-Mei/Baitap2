@@ -8,7 +8,8 @@ namespace Baitap2.Models
         DaNhan,
         DaDen,
         DangDi,
-        HoanThanh
+        HoanThanh,
+        DaHuy
     }
     public class ChuyenDi
     {
@@ -33,6 +34,8 @@ namespace Baitap2.Models
         public TrangThai TrangThai { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public int? DanhGia { get; set; } // 1-5 sao
+        public string? NhanXet { get; set; }
     }
 
 

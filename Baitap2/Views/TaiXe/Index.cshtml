@@ -1,7 +1,4 @@
-﻿
-
-
-@model Baitap2.Models.ChuyenDi
+﻿@model Baitap2.Models.ChuyenDi
 
 <h2>🚗 Tài xế</h2>
 
@@ -24,32 +21,50 @@ else
 <script>
     const id = "@Model?.Id";
 
-    // ===== MAP =====
-    const map = L.map('map').setView([21.0285, 105.8542], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
-        .addTo(map);
-
-    const marker = L.marker([21.0285, 105.8542]).addTo(map);
-
+    let map, marker;
+    let conn;
     let gpsRunning = false;
 
-    // ===== GPS THẬT =====
+    // ===== MAP =====
+    if (id) {
+        map = L.map('map').setView([21.0285, 105.8542], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+            .addTo(map);
+
+        marker = L.marker([21.0285, 105.8542]).addTo(map);
+    }
+
+    // ===== GPS =====
     function runGPS() {
         if (gpsRunning) return;
         gpsRunning = true;
 
+        let lastSend = 0;
+
         if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
+            navigator.geolocation.watchPosition(
+                pos => {
+                    const now = Date.now();
+                    if (now - lastSend < 2000) return; // 🔥 chống spam
+                    lastSend = now;
 
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng]);
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
 
-                // gửi cho khách
-                conn.invoke("GuiViTri", id, lat, lng);
-            });
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng]);
+                    }
+
+                    if (conn && conn.state === "Connected") {
+                        conn.invoke("GuiViTri", id, lat, lng);
+                    }
+                },
+                err => {
+                    alert("❌ Không lấy được GPS");
+                }
+            );
         }
     }
 
@@ -57,6 +72,8 @@ else
     function updateUI(status) {
         const tt = document.getElementById("tt");
         const actions = document.getElementById("actions");
+
+        if (!tt || !actions) return;
 
         actions.innerHTML = "";
 
@@ -85,22 +102,48 @@ else
             case "HoanThanh":
                 tt.innerText = "🏁 Hoàn thành";
                 break;
+
+            case "DaHuy":
+                tt.innerText = "❌ Khách đã hủy chuyến";
+
+                // 🔥 Xóa map đúng cách
+                if (map) {
+                    map.remove();
+                }
+
+                actions.innerHTML = "";
+
+                // 🔥 reset về trạng thái không có cuốc
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+
+                break;
         }
     }
 
     // ===== SIGNALR =====
-    const conn = new signalR.HubConnectionBuilder()
-        .withUrl("/rideHub")
-        .build();
+    if (id) {
+        conn = new signalR.HubConnectionBuilder()
+            .withUrl("/rideHub")
+            .build();
 
-    conn.start().then(() => {
-        conn.invoke("ThamGiaChuyen", id);
-    });
+        conn.start().then(() => {
+            conn.invoke("ThamGiaChuyen", id);
+        });
 
-    conn.on("NhanCapNhat", data => {
-        updateUI(data.trangThai);
-    });
+        conn.on("NhanCapNhat", data => {
 
-    // INIT
-    updateUI("@Model?.TrangThai".toString());
+            // 🔥 Nếu bị hủy thì reset UI luôn
+            if (data.trangThai === "DaHuy") {
+                updateUI("DaHuy");
+                return;
+            }
+
+            updateUI(data.trangThai);
+        });
+    }
+
+    // ===== INIT =====
+    updateUI("@Model?.TrangThai");
 </script>

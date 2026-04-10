@@ -5,18 +5,112 @@
 <h2>🚕 Đặt xe</h2>
 
 <form method="post">
-    <input name="DiemDon" placeholder="Điểm đón" required />
+    <input name="DiemDon" placeholder="Điểm đón (vd: Hà Nội)" required />
     <br /><br />
 
-    <input name="DiemDen" placeholder="Điểm đến" required />
+    <input name="DiemDen" placeholder="Điểm đến (vd: Thái Nguyên)" required />
     <br /><br />
 
     <input name="LoaiXe" placeholder="Loại xe (Bike/Car)" />
     <br /><br />
 
     <input type="datetime-local" name="ThoiGianDat" />
-    <br />
+    <br /><br />
+
     <textarea name="GhiChu" placeholder="Ghi chú"></textarea>
-    <br />
+    <br /><br />
+
+    <!-- 🔥 KM ẩn -->
+    <input type="hidden" name="km" id="km" />
+
+    <!-- 💰 HIỂN THỊ GIÁ -->
+    <p id="gia" style="font-weight:bold;color:green;"></p>
+
     <button type="submit">Đặt xe</button>
 </form>
+
+<script>
+    // ===== GEOCODE =====
+        async function layToaDo(diaChi) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
+
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'demo-app' // 🔥 tránh bị chặn
+            }
+        });
+
+        const data = await res.json();
+
+        console.log("GEOCODE:", diaChi, data); // 👈 DEBUG
+
+        if (data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon)
+            };
+        }
+
+        return null;
+    }
+
+
+    // ===== TÍNH KM =====
+    async function tinhKmVaGia() {
+        const diemDon = document.querySelector('[name="DiemDon"]').value;
+        const diemDen = document.querySelector('[name="DiemDen"]').value;
+
+        if (!diemDon || !diemDen) return;
+
+        const from = await layToaDo(diemDon);
+        const to = await layToaDo(diemDen);
+
+        if (!from || !to) {
+            document.getElementById("gia").innerText = "❌ Không tìm thấy địa chỉ";
+            return;
+        }
+
+        const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=false`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.routes || data.routes.length === 0) {
+            document.getElementById("gia").innerText = "❌ Không tính được đường đi";
+            return;
+        }
+
+        const distance = data.routes[0].distance; // mét
+        const km = distance / 1000;
+
+        // 🔥 GÁN KM vào form
+        document.getElementById("km").value = km;
+
+        // 💰 TÍNH GIÁ
+        const gia = 10000 + km * 8000;
+
+        document.getElementById("gia").innerText =
+            "💰 Giá dự kiến: " + gia.toLocaleString() + " VNĐ (" + km.toFixed(2) + " km)";
+    }
+
+    // ===== TỰ ĐỘNG TÍNH KHI NHẬP =====
+    document.querySelector('[name="DiemDon"]').addEventListener("change", tinhKmVaGia);
+    document.querySelector('[name="DiemDen"]').addEventListener("change", tinhKmVaGia);
+
+    // ===== SUBMIT =====
+    document.querySelector("form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        await tinhKmVaGia();
+
+        // kiểm tra km trước khi gửi
+        const km = document.getElementById("km").value;
+
+        if (!km || km == 0) {
+            alert("❌ Không tính được khoảng cách!");
+            return;
+        }
+
+        this.submit();
+    });
+</script>

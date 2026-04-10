@@ -1,8 +1,5 @@
-﻿
-
-
-
-@model Baitap2.Models.ChuyenDi
+﻿@model Baitap2.Models.ChuyenDi
+@using Baitap2.Models
 
 <h2>🚕 Theo dõi chuyến</h2>
 
@@ -13,6 +10,23 @@
 else
 {
     <p><b>@Model.DiemDon → @Model.DiemDen</b></p>
+
+    <!-- 💰 GIÁ -->
+    <p>💰 Giá dự kiến: <b>@Model.GiaDuKien VNĐ</b></p>
+
+    <!-- ❌ NÚT HỦY -->
+    <div id="btnHuy">
+        @if (Model.TrangThai == TrangThai.DangTimTaiXe)
+        {
+            <form method="post" asp-action="HuyChuyen">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button style="background:red;color:white;padding:8px;">
+                    ❌ Hủy chuyến
+                </button>
+            </form>
+        }
+    </div>
+
     <h3 id="tt"></h3>
     <div id="map" style="height:300px;"></div>
 }
@@ -25,13 +39,18 @@ else
     const id = "@Model?.Id";
 
     // ===== MAP =====
-    const map = L.map('map').setView([21.0285, 105.8542], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
-        .addTo(map);
+    let map, marker;
 
-    const marker = L.marker([21.0285, 105.8542]).addTo(map);
+    if (id) {
+        map = L.map('map').setView([21.0285, 105.8542], 13);
 
-    // ===== GEOCODE (địa chỉ → tọa độ)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+            .addTo(map);
+
+        marker = L.marker([21.0285, 105.8542]).addTo(map);
+    }
+
+    // ===== GEOCODE =====
     async function layToaDo(diaChi) {
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
         const res = await fetch(url);
@@ -48,8 +67,10 @@ else
 
     // ===== VẼ ĐƯỜNG =====
     async function veDuong() {
-        const diemDon = await layToaDo("@Model.DiemDon");
-        const diemDen = await layToaDo("@Model.DiemDen");
+        if (!id) return;
+
+        const diemDon = await layToaDo("@Model?.DiemDon");
+        const diemDen = await layToaDo("@Model?.DiemDen");
 
         if (!diemDon || !diemDen) return;
 
@@ -90,26 +111,61 @@ else
         }
     }
 
+    // ===== RENDER NÚT HỦY REALTIME =====
+    function renderHuyButton(status) {
+        const container = document.getElementById("btnHuy");
+
+        if (!container) return;
+
+        if (status === "DangTimTaiXe") {
+            container.innerHTML = `
+                <form method="post" action="/Khach/HuyChuyen">
+                    <input type="hidden" name="id" value="${id}" />
+                    <button style="background:red;color:white;padding:8px;">
+                        ❌ Hủy chuyến
+                    </button>
+                </form>
+            `;
+        } else {
+            container.innerHTML = "";
+        }
+    }
+    @*     function updateUI(status) {
+        const tt = document.getElementById("tt");
+
+        switch (status) {
+            case "DaHuy":
+                tt.innerText = "❌ Chuyến đã bị hủy";
+                document.getElementById("btnHuy").innerHTML = "";
+                break;
+        }
+    } *@
+
+
+    // ===== INIT =====
+    updateUI("@Model?.TrangThai");
+    renderHuyButton("@Model?.TrangThai");
+
     // ===== SIGNALR =====
-    const conn = new signalR.HubConnectionBuilder()
-        .withUrl("/rideHub")
-        .build();
+    if (id) {
+        const conn = new signalR.HubConnectionBuilder()
+            .withUrl("/rideHub")
+            .build();
 
-    conn.start().then(() => {
-        conn.invoke("ThamGiaChuyen", id);
-    });
+        conn.start().then(() => {
+            conn.invoke("ThamGiaChuyen", id);
+        });
 
-    // nhận trạng thái
-    conn.on("NhanCapNhat", data => {
-        updateUI(data.trangThai);
-    });
+        conn.on("NhanCapNhat", data => {
+            updateUI(data.trangThai);
+            renderHuyButton(data.trangThai);
+        });
 
-    // nhận GPS từ tài xế
-    conn.on("CapNhatViTri", (lat, lng) => {
-        marker.setLatLng([lat, lng]);
-        map.setView([lat, lng]);
-    });
-
-    // INIT
-    updateUI("@Model?.TrangThai".toString());
+        conn.on("CapNhatViTri", (lat, lng) => {
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng]);
+            }
+        });
+    }
 </script>
