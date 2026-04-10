@@ -1,7 +1,4 @@
 ﻿
-
-
-
 using Baitap2.Data;
 using Baitap2.Models;
 using Microsoft.AspNetCore.Mvc;

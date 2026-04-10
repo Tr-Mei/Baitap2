@@ -10,7 +10,7 @@ namespace Baitap2.Models
         public int NguoiDungId { get; set; }
 
         public int SoSao { get; set; }
-        public string NoiDung { get; set; }
+        public string? NoiDung { get; set; }
     }
 
 

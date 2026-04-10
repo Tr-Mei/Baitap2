@@ -82,7 +82,7 @@ else
         const coords = data.routes[0].geometry.coordinates;
         const latlngs = coords.map(c => [c[1], c[0]]);
 
-        L.polyline(latlngs, { color: 'red' }).addTo(map);
+        L.polyline(latlngs).addTo(map);
         map.fitBounds(latlngs);
     }
 
@@ -96,22 +96,40 @@ else
             case "DangTimTaiXe":
                 tt.innerText = "🔍 Đang tìm tài xế...";
                 break;
+
             case "DaNhan":
                 tt.innerText = "🚗 Đã có tài xế";
                 break;
+
             case "DaDen":
                 tt.innerText = "📍 Tài xế đã tới";
                 break;
+
             case "DangDi":
                 tt.innerText = "🚕 Đang di chuyển";
                 break;
+
             case "HoanThanh":
-                tt.innerText = "✅ Hoàn thành";
+                tt.innerText = "🏁 Hoàn thành";
+
+                // 🔥 CHUYỂN SANG ĐÁNH GIÁ
+                setTimeout(() => {
+                    window.location.href = `/DanhGia/Create?rideId=${id}`;
+                }, 1000);
+
+                break;
+
+            case "DaHuy":
+                tt.innerText = "❌ Chuyến đã bị hủy";
+
+                // ẩn nút hủy
+                document.getElementById("btnHuy").innerHTML = "";
+
                 break;
         }
     }
 
-    // ===== RENDER NÚT HỦY REALTIME =====
+    // ===== NÚT HỦY REALTIME =====
     function renderHuyButton(status) {
         const container = document.getElementById("btnHuy");
 
@@ -130,17 +148,6 @@ else
             container.innerHTML = "";
         }
     }
-    @*     function updateUI(status) {
-        const tt = document.getElementById("tt");
-
-        switch (status) {
-            case "DaHuy":
-                tt.innerText = "❌ Chuyến đã bị hủy";
-                document.getElementById("btnHuy").innerHTML = "";
-                break;
-        }
-    } *@
-
 
     // ===== INIT =====
     updateUI("@Model?.TrangThai");

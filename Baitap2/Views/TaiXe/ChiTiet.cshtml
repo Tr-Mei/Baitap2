@@ -1,8 +1,0 @@
-﻿@if (Model.TrangThai == TrangThai.DangDi || Model.TrangThai == TrangThai.DaDen)
-{
-    <h3>💰 Thanh toán</h3>
-
-    <p>Khách quét mã QR để thanh toán:</p>
-
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Chuyen_@Model.Id_Gia_@Model.GiaDuKien" />
-}

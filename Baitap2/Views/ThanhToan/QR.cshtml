@@ -1,0 +1,21 @@
+﻿@model Baitap2.Models.ThanhToan
+
+<h2>💰 Thanh toán chuyến đi</h2>
+
+<p>Số tiền: <b>@Model.SoTien VNĐ</b></p>
+
+<!-- 🔥 QR DEMO -->
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ThanhToan_@Model.Id" />
+
+<br />
+<br />
+
+<p>📱 Khách quét mã để thanh toán</p>
+
+<!-- DEMO BUTTON -->
+<a href="/ThanhToan/XacNhan/@Model.Id">
+    <button style="background:green;color:white;padding:10px;">
+        ✅ Xác nhận đã thanh toán
+    </button>
+</a>
+

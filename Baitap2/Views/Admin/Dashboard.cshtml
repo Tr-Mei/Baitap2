@@ -1,14 +1,46 @@
-﻿<h2>Dashboard Admin</h2>
+﻿<h2>⚙️ ADMIN PANEL</h2>
 
-<p>Tổng người dùng: @ViewBag.TongNguoiDung</p>
-<p>Tổng tài xế: @ViewBag.TongTaiXe</p>
-<p>Tổng chuyến: @ViewBag.TongChuyen</p>
-<p>Doanh thu: @ViewBag.DoanhThu</p>
+<div style="display:flex">
 
-<a href="/Admin/Users">Quản lý User</a>
-<br>
-<a href="/Admin/TaiXes">Quản lý Tài xế</a>
-<br>
-<a href="/Admin/ChuyenDis">Quản lý Chuyến</a>
-<br>
-<a href="/Admin/BaoCao">Báo cáo</a>
+    <!-- MENU -->
+    <div style="width:200px;">
+        <ul>
+            <li><a href="#" onclick="loadPage('/Admin/KhachHang')">Khách hàng</a></li>
+            <li><a href="#" onclick="loadPage('/Admin/TaiXe')">Tài xế</a></li>
+            <li><a href="#" onclick="loadPage('/Admin/ChuyenDis')">Chuyến đi</a></li>
+            <li><a href="#" onclick="loadPage('/Admin/Gia')">Quản lý giá</a></li>
+            <li><a href="#" onclick="loadPage('/Admin/BaoCao')">Báo cáo</a></li>
+
+        </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content" style="flex:1; padding:20px;">
+        <h3>👉 Chọn chức năng bên trái</h3>
+    </div>
+
+</div>
+
+<script>
+    function loadPage(url) {
+        fetch(url)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("content").innerHTML = html;
+            });
+    }
+
+    // 🔥 bắt tất cả link admin
+    document.addEventListener("click", function (e) {
+        if (e.target.tagName === "A") {
+            const url = e.target.getAttribute("href");
+
+            if (url && url.startsWith("/Admin")) {
+                e.preventDefault();
+                loadPage(url);
+            }
+        }
+    });
+
+    window.onload = () => loadPage('/Admin/Users');
+</script>

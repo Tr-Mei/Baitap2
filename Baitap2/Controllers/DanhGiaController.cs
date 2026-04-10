@@ -11,22 +11,27 @@ public class DanhGiaController : Controller
         _context = context;
     }
 
+    // GET
     public IActionResult Create(int rideId)
     {
-        ViewBag.RideId = rideId;
-        return View();
+        return View(rideId);
     }
-
     [HttpPost]
     public IActionResult Create(DanhGia dg)
     {
-        int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+        var userId = HttpContext.Session.GetInt32("UserId");
 
-        dg.NguoiDungId = userId;
+        if (userId == null)
+        {
+            return Content("❌ Chưa đăng nhập");
+        }
+
+        dg.NguoiDungId = userId.Value;
 
         _context.DanhGias.Add(dg);
         _context.SaveChanges();
 
         return RedirectToAction("DatChuyen", "Khach");
     }
+
 }

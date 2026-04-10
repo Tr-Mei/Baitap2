@@ -1,0 +1,17 @@
+﻿@model List<Baitap2.Models.ChuyenDi>
+@{
+    Layout = null;
+}
+
+<h3>🚕 Chuyến đi</h3>
+
+<table border="1">
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td>@c.Id</td>
+            <td>@c.DiemDon → @c.DiemDen</td>
+            <td>@c.TrangThai</td>
+        </tr>
+    }
+</table>

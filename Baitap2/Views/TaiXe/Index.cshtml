@@ -4,7 +4,8 @@
 
 @if (Model == null)
 {
-    <h3>❌ Chưa có cuốc</h3>
+    <h3>👋 Xin chào @Context.Session.GetString("Ten")</h3>
+    <p>🚫 Hiện chưa có cuốc nào</p>
 }
 else
 {
@@ -19,14 +20,15 @@ else
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
 <script>
-    const id = "@Model?.Id";
+    // 🔥 FIX ID
+    const id = @(Model?.Id ?? 0);
 
     let map, marker;
     let conn;
     let gpsRunning = false;
 
     // ===== MAP =====
-    if (id) {
+    if (id > 0) {
         map = L.map('map').setView([21.0285, 105.8542], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
@@ -46,7 +48,8 @@ else
             navigator.geolocation.watchPosition(
                 pos => {
                     const now = Date.now();
-                    if (now - lastSend < 2000) return; // 🔥 chống spam
+                    if (now - lastSend < 2000) return;
+
                     lastSend = now;
 
                     const lat = pos.coords.latitude;
@@ -106,14 +109,12 @@ else
             case "DaHuy":
                 tt.innerText = "❌ Khách đã hủy chuyến";
 
-                // 🔥 Xóa map đúng cách
                 if (map) {
                     map.remove();
                 }
 
                 actions.innerHTML = "";
 
-                // 🔥 reset về trạng thái không có cuốc
                 setTimeout(() => {
                     location.reload();
                 }, 2000);
@@ -123,7 +124,7 @@ else
     }
 
     // ===== SIGNALR =====
-    if (id) {
+    if (id > 0) {
         conn = new signalR.HubConnectionBuilder()
             .withUrl("/rideHub")
             .build();
@@ -134,7 +135,6 @@ else
 
         conn.on("NhanCapNhat", data => {
 
-            // 🔥 Nếu bị hủy thì reset UI luôn
             if (data.trangThai === "DaHuy") {
                 updateUI("DaHuy");
                 return;
@@ -145,5 +145,5 @@ else
     }
 
     // ===== INIT =====
-    updateUI("@Model?.TrangThai");
+    updateUI("@(Model?.TrangThai.ToString() ?? "")");
 </script>

@@ -1,0 +1,32 @@
+﻿@model List<Baitap2.Models.ChuyenDi>
+@{
+    Layout = null;
+}
+
+<h3>💰 Quản lý giá</h3>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Điểm</th>
+        <th>Giá</th>
+        <th>Sửa</th>
+    </tr>
+
+    @foreach (var c in Model)
+    {
+        <tr>
+            <form method="post" action="/Admin/CapNhatGia">
+            <td>@c.Id</td>
+            <td>@c.DiemDon → @c.DiemDen</td>
+            <td>
+                <input name="gia" value="@c.GiaDuKien" />
+                <input type="hidden" name="id" value="@c.Id" />
+            </td>
+            <td>
+                <button>Lưu</button>
+            </td>
+            </form>
+        </tr>
+    }
+</table>

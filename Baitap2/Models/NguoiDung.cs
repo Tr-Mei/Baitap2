@@ -22,6 +22,7 @@ namespace Baitap2.Models
         public VaiTro VaiTro { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public bool BiKhoa { get; set; } = false;
     }
 
 

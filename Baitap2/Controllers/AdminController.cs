@@ -1,7 +1,6 @@
-﻿
+﻿using Microsoft.AspNetCore.Mvc;
 using Baitap2.Data;
 using Baitap2.Models;
-using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 public class AdminController : Controller
@@ -13,6 +12,7 @@ public class AdminController : Controller
         _context = context;
     }
 
+    // ===== CHECK ADMIN =====
     private bool IsAdmin()
     {
         return HttpContext.Session.GetString("Role") == "Admin";
@@ -22,90 +22,163 @@ public class AdminController : Controller
     public IActionResult Dashboard()
     {
         if (!IsAdmin()) return RedirectToAction("Login", "Auth");
-
-        ViewBag.TongNguoiDung = _context.NguoiDungs.Count();
-        ViewBag.TongTaiXe = _context.TaiXes.Count();
-        ViewBag.TongChuyen = _context.ChuyenDis.Count();
-
-        ViewBag.DoanhThu = _context.ThanhToans
-            .Where(x => x.TrangThai == "DaTT")
-            .Sum(x => (decimal?)x.SoTien) ?? 0;
-
         return View();
     }
 
-    // ===== QUẢN LÝ USER =====
-    public IActionResult Users()
+    // =========================
+    // 👤 KHÁCH HÀNG
+    // =========================
+    public IActionResult KhachHang()
     {
-        if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+        var list = _context.NguoiDungs
+            .Where(x => x.VaiTro == VaiTro.Khach)
+            .ToList();
 
-        return View(_context.NguoiDungs.ToList());
+        return PartialView("KhachHang", list);
     }
 
-    public IActionResult ToggleUser(int id)
+    // =========================
+    // 🚗 TÀI XẾ
+    // =========================
+    public IActionResult TaiXe()
     {
-        var u = _context.NguoiDungs.Find(id);
-        if (u != null)
+        var list = _context.NguoiDungs
+            .Where(x => x.VaiTro == VaiTro.TaiXe)
+            .ToList();
+
+        return PartialView("TaiXe", list);
+    }
+
+    // =========================
+    // 🔍 CHI TIẾT USER
+    // =========================
+    public IActionResult ChiTiet(int id)
+    {
+        var user = _context.NguoiDungs.Find(id);
+        return PartialView("ChiTiet", user);
+    }
+
+    // =========================
+    // ❌ XÓA
+    // =========================
+    public IActionResult Xoa(int id)
+    {
+        var user = _context.NguoiDungs.Find(id);
+
+        if (user != null)
         {
-            u.IsActive = !u.IsActive;
+            var role = user.VaiTro;
+
+            _context.NguoiDungs.Remove(user);
             _context.SaveChanges();
+
+            if (role == VaiTro.TaiXe)
+                return RedirectToAction("TaiXe");
+
+            return RedirectToAction("KhachHang");
         }
-        return RedirectToAction("Users");
+
+        return RedirectToAction("Dashboard");
     }
 
-    // ===== QUẢN LÝ TÀI XẾ =====
-    public IActionResult TaiXes()
+    // =========================
+    // 🔒 KHÓA
+    // =========================
+    public IActionResult Khoa(int id)
     {
-        if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+        var user = _context.NguoiDungs.Find(id);
 
-        return View(_context.TaiXes.ToList());
-    }
-
-    public IActionResult ToggleOnline(int id)
-    {
-        var tx = _context.TaiXes.Find(id);
-        if (tx != null)
+        if (user != null)
         {
-            tx.Online = !tx.Online;
+            user.IsActive = false;
             _context.SaveChanges();
+
+            if (user.VaiTro == VaiTro.TaiXe)
+                return RedirectToAction("TaiXe");
+
+            return RedirectToAction("KhachHang");
         }
-        return RedirectToAction("TaiXes");
+
+        return RedirectToAction("Dashboard");
     }
 
-    // ===== QUẢN LÝ CHUYẾN =====
-    public IActionResult ChuyenDis()
+    // =========================
+    // 🔓 MỞ KHÓA
+    // =========================
+    public IActionResult MoKhoa(int id)
     {
-        if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+        var user = _context.NguoiDungs.Find(id);
 
-        return View(_context.ChuyenDis.ToList());
+        if (user != null)
+        {
+            user.IsActive = true;
+            _context.SaveChanges();
+
+            if (user.VaiTro == VaiTro.TaiXe)
+                return RedirectToAction("TaiXe");
+
+            return RedirectToAction("KhachHang");
+        }
+
+        return RedirectToAction("Dashboard");
     }
 
-    // ===== ĐIỀU PHỐI =====
-    public IActionResult DieuPhoi(int id)
+    // =========================
+    // ✏️ SỬA
+    // =========================
+    public IActionResult Sua(int id)
     {
-        var chuyen = _context.ChuyenDis.Find(id);
-        var taiXes = _context.TaiXes.Where(x => x.Online).ToList();
-
-        ViewBag.TaiXes = taiXes;
-        return View(chuyen);
+        var user = _context.NguoiDungs.Find(id);
+        return PartialView("Sua", user);
     }
 
     [HttpPost]
-    public IActionResult DieuPhoi(int chuyenId, int taiXeId)
+    public IActionResult Sua(NguoiDung u)
     {
-        var c = _context.ChuyenDis.Find(chuyenId);
+        _context.NguoiDungs.Update(u);
+        _context.SaveChanges();
+
+        if (u.VaiTro == VaiTro.TaiXe)
+            return RedirectToAction("TaiXe");
+
+        return RedirectToAction("KhachHang");
+    }
+
+    // =========================
+    // 🚕 CHUYẾN ĐI
+    // =========================
+    public IActionResult ChuyenDis()
+    {
+        var list = _context.ChuyenDis.ToList();
+        return PartialView("ChuyenDis", list);
+    }
+
+    // =========================
+    // 💰 QUẢN LÝ GIÁ
+    // =========================
+    public IActionResult Gia()
+    {
+        var list = _context.ChuyenDis.ToList();
+        return PartialView("Gia", list);
+    }
+
+    [HttpPost]
+    public IActionResult CapNhatGia(int id, decimal gia)
+    {
+        var c = _context.ChuyenDis.Find(id);
 
         if (c != null)
         {
-            c.TaiXeId = taiXeId;
-            c.TrangThai = TrangThai.DaNhan;
+            c.GiaDuKien = gia;
             _context.SaveChanges();
         }
 
-        return RedirectToAction("ChuyenDis");
+        return RedirectToAction("Gia");
     }
 
-    // ===== BÁO CÁO =====
+    // =========================
+    // 📊 BÁO CÁO
+    // =========================
     public IActionResult BaoCao()
     {
         var tongTien = _context.ThanhToans
@@ -113,10 +186,12 @@ public class AdminController : Controller
             .Sum(x => (decimal?)x.SoTien) ?? 0;
 
         var soChuyen = _context.ChuyenDis.Count();
+        var soUser = _context.NguoiDungs.Count();
 
         ViewBag.TongTien = tongTien;
         ViewBag.SoChuyen = soChuyen;
+        ViewBag.SoUser = soUser;
 
-        return View();
+        return PartialView("BaoCao");
     }
 }

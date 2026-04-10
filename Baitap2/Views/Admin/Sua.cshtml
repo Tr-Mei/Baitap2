@@ -1,0 +1,26 @@
+﻿@model Baitap2.Models.NguoiDung
+@{
+    Layout = null;
+}
+
+<h3>✏️ Sửa user</h3>
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <p>Username</p>
+    <input asp-for="Username" />
+
+    <p>Email</p>
+    <input asp-for="Email" />
+
+    <p>Điện thoại</p>
+    <input asp-for="DienThoai" />
+
+    <p>Mật khẩu</p>
+    <input asp-for="MatKhau" />
+
+    <br /><br />
+
+    <button type="submit">Lưu</button>
+</form>

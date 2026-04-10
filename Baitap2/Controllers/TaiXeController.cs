@@ -28,13 +28,15 @@ public class TaiXeController : Controller
         }
         else
         {
+            // 🔥 CHỈ LẤY CUỐC ĐANG CHỜ TÀI XẾ
             c = _context.ChuyenDis
                 .OrderByDescending(x => x.Id)
-                .FirstOrDefault(x => x.TrangThai != TrangThai.HoanThanh);
+                .FirstOrDefault(x => x.TrangThai == TrangThai.DangTimTaiXe);
         }
 
         return View(c);
     }
+
 
     private async Task GuiTrangThai(ChuyenDi c)
     {
@@ -81,15 +83,30 @@ public class TaiXeController : Controller
         return RedirectToAction("Index", new { id });
     }
 
-    public async Task<IActionResult> HoanThanh(int id)
+    public IActionResult HoanThanh(int id)
     {
-        var c = _context.ChuyenDis.Find(id);
-        if (c == null) return RedirectToAction("Index");
+        var chuyen = _context.ChuyenDis.Find(id);
+        if (chuyen == null) return NotFound();
 
-        c.TrangThai = TrangThai.HoanThanh;
+        chuyen.TrangThai = TrangThai.HoanThanh;
+
+        // 🔥 TẠO THANH TOÁN
+        var tt = new ThanhToan
+        {
+            ChuyenDiId = id,
+            SoTien = chuyen.GiaDuKien,
+            TrangThai = "ChuaTT"
+        };
+
+        _context.ThanhToans.Add(tt);
         _context.SaveChanges();
 
-        await GuiTrangThai(c);
-        return RedirectToAction("Index", new { id });
+        // 🔥 realtime cho khách
+        _hub.Clients.Group(id.ToString())
+            .SendAsync("NhanCapNhat", new { trangThai = "HoanThanh" });
+
+        // 👉 CHUYỂN SANG QR
+        return RedirectToAction("QR", "ThanhToan", new { rideId = id });
     }
+
 }

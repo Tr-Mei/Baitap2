@@ -1,7 +1,9 @@
-﻿<h2>⭐ Đánh giá tài xế</h2>
+﻿@model int
+
+<h2>⭐ Đánh giá tài xế</h2>
 
 <form method="post">
-    <input type="hidden" name="ChuyenDiId" value="@Context.Request.Query["rideId"]" />
+    <input type="hidden" name="ChuyenDiId" value="@Model" />
 
     <label>Số sao:</label>
     <select name="SoSao">
@@ -18,5 +20,5 @@
 
     <br /><br />
 
-    <button>Gửi</button>
+    <button type="submit">Gửi</button>
 </form>

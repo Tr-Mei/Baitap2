@@ -1,0 +1,13 @@
+﻿@model Baitap2.Models.NguoiDung
+@{
+    Layout = null;
+}
+
+<h3>👤 Chi tiết người dùng</h3>
+
+<p>ID: @Model.Id</p>
+<p>Username: @Model.Username</p>
+<p>Email: @Model.Email</p>
+<p>Điện thoại: @Model.DienThoai</p>
+<p>Vai trò: @Model.VaiTro</p>
+<p>Trạng thái: @(Model.IsActive ? "Hoạt động" : "Bị khóa")</p>
