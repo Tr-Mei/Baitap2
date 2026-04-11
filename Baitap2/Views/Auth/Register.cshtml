@@ -1,39 +1,43 @@
 ﻿
 
+@model Baitap2.Models.NguoiDung
+
 <h2 style="text-align:center;">📝 Đăng ký</h2>
 
 <div style="display:flex; justify-content:center; margin-top:30px;">
-    <form method="post" action="/Auth/Register"
+    <form asp-action="Register" method="post"
           style="width:350px; padding:25px; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 10px #ddd;">
+
+        <!-- HIỂN THỊ LỖI TỔNG -->
+        <div asp-validation-summary="All" style="color:red"></div>
 
         <div style="margin-bottom:15px;">
             <label>Tên đăng nhập</label>
-            <input name="username" placeholder="Nhập username"
-                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" style="color:red"></span>
         </div>
 
         <div style="margin-bottom:15px;">
             <label>Email</label>
-            <input name="email" placeholder="Nhập email"
-                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" style="color:red"></span>
         </div>
 
         <div style="margin-bottom:15px;">
             <label>Điện thoại</label>
-            <input name="dienThoai" placeholder="Nhập số điện thoại"
-                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+            <input asp-for="DienThoai" class="form-control" />
+            <span asp-validation-for="DienThoai" style="color:red"></span>
         </div>
 
         <div style="margin-bottom:15px;">
             <label>Mật khẩu</label>
-            <input name="password" type="password" placeholder="Nhập password"
-                   style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;" required />
+            <input asp-for="MatKhau" type="password" class="form-control" />
+            <span asp-validation-for="MatKhau" style="color:red"></span>
         </div>
 
         <div style="margin-bottom:20px;">
             <label>Vai trò</label>
-            <select name="vaiTro"
-                    style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+            <select asp-for="VaiTro" class="form-control">
                 <option value="Khach">Khách</option>
                 <option value="TaiXe">Tài xế</option>
             </select>
@@ -44,5 +48,13 @@
             Đăng ký
         </button>
 
+        <div style="text-align:center; margin-top:15px;">
+            <a href="/Auth/Login">Đã có tài khoản? Đăng nhập</a>
+        </div>
+
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
