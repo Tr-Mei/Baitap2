@@ -70,6 +70,11 @@
         border-radius: 15px;
         overflow: hidden;
     }
+
+    .btn-tuchoi {
+        background: #dc3545;
+    }
+
 </style>
 
 <div class="container">
@@ -162,10 +167,19 @@
         actions.innerHTML = "";
 
         switch (status) {
+            // case "DangTimTaiXe":
+            //     tt.innerText = "🕐 Có cuốc mới";
+            //     actions.innerHTML = `<a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>`;
+            //     break;
+
             case "DangTimTaiXe":
-                tt.innerText = "🕐 Có cuốc mới";
-                actions.innerHTML = `<a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>`;
-                break;
+    tt.innerText = "🕐 Có cuốc mới";
+    actions.innerHTML = `
+        <a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>
+        <a class="btn-tuchoi" href="/TaiXe/TuChoi/${id}">Từ chối</a>
+    `;
+    break;
+
 
             case "DaNhan":
                 tt.innerText = "🚗 Đã nhận cuốc";

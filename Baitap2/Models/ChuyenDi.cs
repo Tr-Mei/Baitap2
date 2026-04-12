@@ -25,11 +25,12 @@ namespace Baitap2.Models
 
         public NguoiDung Khach { get; set; }
 
-        // ===== Tài xế =====
+        // ===== Tài xế (🔥 FIX FK nhưng giữ nguyên validation) =====
         [Range(1, int.MaxValue, ErrorMessage = "TaiXeId phải > 0")]
         public int? TaiXeId { get; set; }
 
-        public TaiXe TaiXe { get; set; }
+        [ForeignKey("TaiXeId")]
+        public NguoiDung TaiXe { get; set; }
 
         // ===== Địa điểm =====
         [Required(ErrorMessage = "Điểm đón không được để trống")]

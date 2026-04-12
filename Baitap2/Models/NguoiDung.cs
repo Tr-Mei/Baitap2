@@ -28,7 +28,7 @@ namespace Baitap2.Models
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Username không được để trống")]
-        [StringLength(50, MinimumLength = 4, ErrorMessage = "Username từ 4-50 ký tự")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Username từ 3-50 ký tự")]
         [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username chỉ chứa chữ, số và dấu _")]
         public string Username { get; set; }
 

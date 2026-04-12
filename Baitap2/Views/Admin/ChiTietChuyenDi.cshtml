@@ -1,0 +1,37 @@
+﻿@model Baitap2.Models.ChuyenDi
+
+<div class="card">
+    <h3>🚕 Chi tiết chuyến đi</h3>
+
+    <p><b>ID:</b> @Model.Id</p>
+    <p><b>📍 Điểm đón:</b> @Model.DiemDon</p>
+    <p><b>🏁 Điểm đến:</b> @Model.DiemDen</p>
+    <p><b>💰 Giá:</b> @Model.GiaDuKien.ToString("N0") VNĐ</p>
+    <p><b>📊 Trạng thái:</b> @Model.TrangThai</p>
+
+    <hr />
+
+    <h4>👤 Khách hàng</h4>
+    @if (Model.Khach != null)
+    {
+        <p><b>Tên:</b> @Model.Khach.Username</p>
+        <p><b>SĐT:</b> @Model.Khach.DienThoai</p>
+        <p><b>Email:</b> @Model.Khach.Email</p>
+    }
+    else
+    {
+        <p style="color:red;">Chưa có khách</p>
+    }
+
+    <h4>🚗 Tài xế</h4>
+    @if (Model.TaiXe != null)
+    {
+        <p><b>Tên:</b> @Model.TaiXe.Username</p>
+        <p><b>SĐT:</b> @Model.TaiXe.DienThoai</p>
+        <p><b>Email:</b> @Model.TaiXe.Email</p>
+    }
+    else
+    {
+        <p style="color:red;">Chưa có tài xế</p>
+    }
+</div>

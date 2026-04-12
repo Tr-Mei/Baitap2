@@ -13,6 +13,8 @@ namespace Baitap2.Data
         public DbSet<DiaDiem> DiaDiems { get; set; }
         public DbSet<ThanhToan> ThanhToans { get; set; }
         public DbSet<DanhGia> DanhGias { get; set; }
+        public DbSet<TuChoiChuyen> TuChoiChuyens { get; set; }
+
 
         // 👇 THÊM ĐOẠN NÀY
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,4 +1,4 @@
-﻿@model Baitap2.Models.NguoiDung
+﻿@* @model Baitap2.Models.NguoiDung
 @{
     Layout = null;
 }
@@ -160,5 +160,81 @@
 
         </div>
 
+    </div>
+</div> *@
+
+
+@model List<Baitap2.Models.ChuyenDi>
+
+<div class="container">
+    <div class="card">
+        <h3>🚕 Danh sách chuyến đi</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tuyến</th>
+                    <th>Khách</th>
+                    <th>Tài xế</th>
+                    <th>Giá</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    string cls = "";
+
+                    switch (c.TrangThai)
+                    {
+                        case TrangThai.DangTimTaiXe: cls = "dangtim"; break;
+                        case TrangThai.DaNhan: cls = "danhan"; break;
+                        case TrangThai.DangDi: cls = "dangdi"; break;
+                        case TrangThai.HoanThanh: cls = "hoanthanh"; break;
+                        case TrangThai.DaHuy: cls = "huy"; break;
+                    }
+
+                    <tr onclick="location.href='/Admin/ChiTietChuyen/@c.Id'">
+                        <td>@c.Id</td>
+
+                        <td>
+                            📍 @c.DiemDon <br />
+                            → 🏁 @c.DiemDen
+                        </td>
+
+                        <td>
+                            @(c.Khach != null ? c.Khach.Username : "Chưa có")
+                        </td>
+
+                        <td>
+                            @(c.TaiXe != null ? c.TaiXe.Username : "Chưa nhận")
+                        </td>
+
+                        <td>@c.GiaDuKien.ToString("N0") VNĐ</td>
+
+                        <td>
+                            <span class="badge @cls">@c.TrangThai</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div id="pagination">
+            @{
+                int current = ViewBag.CurrentPage;
+                int total = ViewBag.TotalPages;
+
+                for (int i = 1; i <= total; i++)
+                {
+                    <a href="/Admin/ChuyenDis?page=@i">
+                        @i
+                    </a>
+                }
+            }
+        </div>
     </div>
 </div>

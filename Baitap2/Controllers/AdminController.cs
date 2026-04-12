@@ -2,6 +2,7 @@
 using Baitap2.Data;
 using Baitap2.Models;
 using System.Linq;
+using Microsoft.EntityFrameworkCore; 
 
 public class AdminController : Controller
 {
@@ -176,13 +177,35 @@ public class AdminController : Controller
     //    return PartialView("ChuyenDis", list);
     //}
 
+    //public IActionResult ChuyenDis(int page = 1)
+    //{
+    //    int pageSize = 5;
+
+    //    var total = _context.ChuyenDis.Count();
+
+    //    var data = _context.ChuyenDis
+    //        .OrderByDescending(x => x.Id)
+    //        .Skip((page - 1) * pageSize)
+    //        .Take(pageSize)
+    //        .ToList();
+
+    //    ViewBag.CurrentPage = page;
+    //    ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+
+    //    return PartialView("ChuyenDis", data); // 🔥 phải là PartialView
+    //}
+
     public IActionResult ChuyenDis(int page = 1)
     {
         int pageSize = 5;
 
-        var total = _context.ChuyenDis.Count();
+        var query = _context.ChuyenDis
+            .Include(x => x.Khach)   // 👈 thêm
+            .Include(x => x.TaiXe);  // 👈 thêm
 
-        var data = _context.ChuyenDis
+        var total = query.Count();
+
+        var data = query
             .OrderByDescending(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -191,8 +214,21 @@ public class AdminController : Controller
         ViewBag.CurrentPage = page;
         ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
-        return PartialView("ChuyenDis", data); // 🔥 phải là PartialView
+        return PartialView("ChuyenDis", data);
     }
+    public IActionResult ChiTietChuyen(int id)
+    {
+        var chuyen = _context.ChuyenDis
+            .Include(x => x.Khach)
+            .Include(x => x.TaiXe)
+            .FirstOrDefault(x => x.Id == id);
+
+        if (chuyen == null)
+            return NotFound();
+
+        return View(chuyen); // hoặc PartialView nếu bạn dùng ajax
+    }
+
 
 
     // =========================
