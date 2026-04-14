@@ -168,44 +168,22 @@ public class AdminController : Controller
         return RedirectToAction("KhachHang");
     }
 
-    // =========================
-    // 🚕 CHUYẾN ĐI
-    // =========================
+     //=========================
+     //🚕 CHUYẾN ĐI
+     //=========================
     //public IActionResult ChuyenDis()
     //{
     //    var list = _context.ChuyenDis.ToList();
     //    return PartialView("ChuyenDis", list);
     //}
 
-    //public IActionResult ChuyenDis(int page = 1)
-    //{
-    //    int pageSize = 5;
-
-    //    var total = _context.ChuyenDis.Count();
-
-    //    var data = _context.ChuyenDis
-    //        .OrderByDescending(x => x.Id)
-    //        .Skip((page - 1) * pageSize)
-    //        .Take(pageSize)
-    //        .ToList();
-
-    //    ViewBag.CurrentPage = page;
-    //    ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
-
-    //    return PartialView("ChuyenDis", data); // 🔥 phải là PartialView
-    //}
-
     public IActionResult ChuyenDis(int page = 1)
     {
         int pageSize = 5;
 
-        var query = _context.ChuyenDis
-            .Include(x => x.Khach)   // 👈 thêm
-            .Include(x => x.TaiXe);  // 👈 thêm
+        var total = _context.ChuyenDis.Count();
 
-        var total = query.Count();
-
-        var data = query
+        var data = _context.ChuyenDis
             .OrderByDescending(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -214,9 +192,16 @@ public class AdminController : Controller
         ViewBag.CurrentPage = page;
         ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
-        return PartialView("ChuyenDis", data);
+        return PartialView("ChuyenDis", data); // 🔥 phải là PartialView
     }
-    public IActionResult ChiTietChuyen(int id)
+
+    
+
+
+
+
+
+    public IActionResult ChiTietChuyenDi(int id)
     {
         var chuyen = _context.ChuyenDis
             .Include(x => x.Khach)
