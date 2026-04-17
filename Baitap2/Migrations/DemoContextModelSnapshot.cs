@@ -191,6 +191,10 @@ namespace Baitap2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CCCD")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
@@ -198,11 +202,18 @@ namespace Baitap2.Migrations
                     b.Property<double>("DanhGiaTB")
                         .HasColumnType("float");
 
+                    b.Property<int>("LoaiXe")
+                        .HasColumnType("int");
+
                     b.Property<int>("NguoiDungId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Online")
                         .HasColumnType("bit");
+
+                    b.Property<string>("SoDienThoai")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

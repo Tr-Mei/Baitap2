@@ -1,0 +1,158 @@
+﻿@model Tuple<Baitap2.Models.NguoiDung, Baitap2.Models.TaiXe>
+
+<style>
+    body {
+        background: #f4f6f9;
+        font-family: Arial;
+    }
+
+    .container {
+        max-width: 420px;
+        margin: 40px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    h4 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #444;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                border-color: #4a90e2;
+                box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
+            }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-primary {
+        background: #28a745;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+    .btn-reset {
+        background: #17a2b8;
+        color: white;
+        margin-top: 10px;
+    }
+
+        .btn-reset:hover {
+            background: #138496;
+        }
+
+    .btn-back {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        padding: 12px;
+        background: #6c757d;
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+        .btn-back:hover {
+            background: #5a6268;
+        }
+</style>
+
+<div class="container">
+    <div class="card">
+
+        <h2>🚗 Thêm tài xế</h2>
+
+        <form method="post" asp-action="TaoTaiXe">
+
+            <h4>👤 Tài khoản</h4>
+
+            <div class="form-group">
+                <input name="user.Username" placeholder="Tên đăng nhập" required />
+            </div>
+
+            <div class="form-group">
+                <input name="user.MatKhau" type="password" placeholder="Mật khẩu" required />
+            </div>
+
+            <div class="form-group">
+                <input name="user.Email" placeholder="Email (không bắt buộc)" />
+            </div>
+
+            <div class="form-group">
+                <input name="user.DienThoai" placeholder="Số điện thoại" required />
+            </div>
+
+            <h4>🚗 Thông tin tài xế</h4>
+
+            <div class="form-group">
+                <input name="tx.CCCD" placeholder="CCCD / CMND" required />
+            </div>
+
+            <div class="form-group">
+                <select name="tx.LoaiXe" required>
+                    <option value="">-- Chọn loại xe --</option>
+                    <option value="XeMay">Xe máy</option>
+                    <option value="Oto4Cho">Ô tô 4 chỗ</option>
+                    <option value="Oto7Cho">Ô tô 7 chỗ</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                🚀 Tạo tài xế
+            </button>
+
+            
+
+            <a href="/Admin/TaiXe" class="btn-back">
+                ← Quay lại danh sách
+            </a>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function resetForm() {
+        document.querySelector("form").reset();
+    }
+</script>

@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Baitap2.Models
 {
+    public enum LoaiXe
+    {
+        XeMay,
+        Oto4Cho,
+        Oto7Cho
+    }
+
     public class TaiXe
     {
         public int Id { get; set; }
@@ -14,6 +21,14 @@ namespace Baitap2.Models
         public int NguoiDungId { get; set; }
 
         public NguoiDung NguoiDung { get; set; }
+        [Required]
+        public string CCCD { get; set; }
+
+        [Required]
+        public string SoDienThoai { get; set; }
+
+        [Required]
+        public LoaiXe LoaiXe { get; set; }
 
         // ===== Trạng thái =====
         public bool Online { get; set; } = false;

@@ -1,6 +1,139 @@
 ﻿
 
 
+//using Baitap2.Data;
+//using Baitap2.Hubs;
+//using Baitap2.Models;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.SignalR;
+
+//public class TaiXeController : Controller
+//{
+//    private readonly DemoContext _context;
+//    private readonly IHubContext<RideHub> _hub;
+
+//    public TaiXeController(DemoContext context, IHubContext<RideHub> hub)
+//    {
+//        _context = context;
+//        _hub = hub;
+//    }
+
+//    public IActionResult Index(int? id)
+//    {
+//        ChuyenDi c = null;
+
+//        if (id != null)
+//        {
+//            c = _context.ChuyenDis.Find(id);
+//        }
+//        else
+//        {
+//            // 🔥 CHỈ LẤY CUỐC ĐANG CHỜ TÀI XẾ
+//            c = _context.ChuyenDis
+//     .Where(x => x.TrangThai == TrangThai.DangTimTaiXe)
+//     .OrderByDescending(x => x.Id)
+//     .FirstOrDefault();
+
+//        }
+
+//        return View(c);
+//    }
+
+
+//    private async Task GuiTrangThai(ChuyenDi c)
+//    {
+//        await _hub.Clients.Group(c.Id.ToString())
+//            .SendAsync("NhanCapNhat", new
+//            {
+//                trangThai = c.TrangThai.ToString()
+//            });
+//    }
+
+//    public async Task<IActionResult> Nhan(int id)
+//    {
+//        var c = _context.ChuyenDis.Find(id);
+//        if (c == null) return RedirectToAction("Index");
+
+//        c.TrangThai = TrangThai.DaNhan;
+//        _context.SaveChanges();
+
+//        await GuiTrangThai(c);
+//        return RedirectToAction("Index", new { id });
+//    }
+
+//    public async Task<IActionResult> TuChoi(int id)
+//    {
+//        var c = _context.ChuyenDis.Find(id);
+//        if (c == null) return RedirectToAction("Index");
+
+//        // 🔥 Reset lại chuyến (cho tài xế khác nhận)
+//        c.TrangThai = TrangThai.DangTimTaiXe;
+
+//        // Nếu có cột TaiXeId thì nhớ reset
+//        // c.TaiXeId = null;
+
+//        _context.SaveChanges();
+
+//        // 🔥 Gửi realtime cho khách
+//        await GuiTrangThai(c);
+
+//        // 🔥 QUAY VỀ MÀN HÌNH CHÍNH (KHÔNG TRUYỀN ID)
+//        return RedirectToAction("Index");
+//    }
+
+//    public async Task<IActionResult> Den(int id)
+//    {
+//        var c = _context.ChuyenDis.Find(id);
+//        if (c == null) return RedirectToAction("Index");
+
+//        c.TrangThai = TrangThai.DaDen;
+//        _context.SaveChanges();
+
+//        await GuiTrangThai(c);
+//        return RedirectToAction("Index", new { id });
+//    }
+
+//    public async Task<IActionResult> BatDau(int id)
+//    {
+//        var c = _context.ChuyenDis.Find(id);
+//        if (c == null) return RedirectToAction("Index");
+
+//        c.TrangThai = TrangThai.DangDi;
+//        _context.SaveChanges();
+
+//        await GuiTrangThai(c);
+//        return RedirectToAction("Index", new { id });
+//    }
+
+//    public IActionResult HoanThanh(int id)
+//    {
+//        var chuyen = _context.ChuyenDis.Find(id);
+//        if (chuyen == null) return NotFound();
+
+//        chuyen.TrangThai = TrangThai.HoanThanh;
+
+//        // 🔥 TẠO THANH TOÁN
+//        var tt = new ThanhToan
+//        {
+//            ChuyenDiId = id,
+//            SoTien = chuyen.GiaDuKien,
+//            TrangThai = "ChuaTT"
+//        };
+
+//        _context.ThanhToans.Add(tt);
+//        _context.SaveChanges();
+
+//        // 🔥 realtime cho khách
+//        _hub.Clients.Group(id.ToString())
+//            .SendAsync("NhanCapNhat", new { trangThai = "HoanThanh" });
+
+//        // 👉 CHUYỂN SANG QR
+//        return RedirectToAction("QR", "ThanhToan", new { rideId = id });
+//    }
+
+//}
+
+
 using Baitap2.Data;
 using Baitap2.Hubs;
 using Baitap2.Models;
@@ -22,23 +155,30 @@ public class TaiXeController : Controller
     {
         ChuyenDi c = null;
 
+        int? userId = HttpContext.Session.GetInt32("UserId");
+        if (userId == null) return RedirectToAction("Login", "Auth");
+
+        var taiXe = _context.TaiXes
+            .FirstOrDefault(x => x.NguoiDungId == userId);
+
+        if (taiXe == null) return Content("❌ Không phải tài xế");
+
         if (id != null)
         {
             c = _context.ChuyenDis.Find(id);
         }
         else
         {
-            // 🔥 CHỈ LẤY CUỐC ĐANG CHỜ TÀI XẾ
+            // 🔥 CHỈ LẤY CUỐC PHÙ HỢP LOẠI XE
             c = _context.ChuyenDis
-     .Where(x => x.TrangThai == TrangThai.DangTimTaiXe)
-     .OrderByDescending(x => x.Id)
-     .FirstOrDefault();
-
+                .Where(x => x.TrangThai == TrangThai.DangTimTaiXe
+                         && x.LoaiXe == taiXe.LoaiXe.ToString())
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefault();
         }
 
         return View(c);
     }
-
 
     private async Task GuiTrangThai(ChuyenDi c)
     {
@@ -54,7 +194,15 @@ public class TaiXeController : Controller
         var c = _context.ChuyenDis.Find(id);
         if (c == null) return RedirectToAction("Index");
 
+        int userId = HttpContext.Session.GetInt32("UserId").Value;
+
+        // 🔥 TRÁNH 2 TÀI XẾ NHẬN 1 CUỐC
+        if (c.TaiXeId != null)
+            return Content("❌ Cuốc đã có tài xế khác nhận");
+
+        c.TaiXeId = userId;
         c.TrangThai = TrangThai.DaNhan;
+
         _context.SaveChanges();
 
         await GuiTrangThai(c);
@@ -66,18 +214,13 @@ public class TaiXeController : Controller
         var c = _context.ChuyenDis.Find(id);
         if (c == null) return RedirectToAction("Index");
 
-        // 🔥 Reset lại chuyến (cho tài xế khác nhận)
         c.TrangThai = TrangThai.DangTimTaiXe;
-
-        // Nếu có cột TaiXeId thì nhớ reset
-        // c.TaiXeId = null;
+        c.TaiXeId = null; // 🔥 reset
 
         _context.SaveChanges();
 
-        // 🔥 Gửi realtime cho khách
         await GuiTrangThai(c);
 
-        // 🔥 QUAY VỀ MÀN HÌNH CHÍNH (KHÔNG TRUYỀN ID)
         return RedirectToAction("Index");
     }
 
@@ -112,7 +255,6 @@ public class TaiXeController : Controller
 
         chuyen.TrangThai = TrangThai.HoanThanh;
 
-        // 🔥 TẠO THANH TOÁN
         var tt = new ThanhToan
         {
             ChuyenDiId = id,
@@ -123,14 +265,11 @@ public class TaiXeController : Controller
         _context.ThanhToans.Add(tt);
         _context.SaveChanges();
 
-        // 🔥 realtime cho khách
         _hub.Clients.Group(id.ToString())
             .SendAsync("NhanCapNhat", new { trangThai = "HoanThanh" });
 
-        // 👉 CHUYỂN SANG QR
         return RedirectToAction("QR", "ThanhToan", new { rideId = id });
     }
-
 }
 
 

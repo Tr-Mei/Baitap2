@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Baitap2.Migrations
 {
     /// <inheritdoc />
-    public partial class BTAP2 : Migration
+    public partial class DTB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -80,25 +80,17 @@ namespace Baitap2.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaiXes",
+                name: "TuChoiChuyens",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NguoiDungId = table.Column<int>(type: "int", nullable: false),
-                    Online = table.Column<bool>(type: "bit", nullable: false),
-                    DanhGiaTB = table.Column<double>(type: "float", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ChuyenDiId = table.Column<int>(type: "int", nullable: false),
+                    TaiXeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaiXes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TaiXes_NguoiDungs_NguoiDungId",
-                        column: x => x.NguoiDungId,
-                        principalTable: "NguoiDungs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_TuChoiChuyens", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -130,10 +122,35 @@ namespace Baitap2.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChuyenDis_TaiXes_TaiXeId",
+                        name: "FK_ChuyenDis_NguoiDungs_TaiXeId",
                         column: x => x.TaiXeId,
-                        principalTable: "TaiXes",
+                        principalTable: "NguoiDungs",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaiXes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NguoiDungId = table.Column<int>(type: "int", nullable: false),
+                    CCCD = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SoDienThoai = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LoaiXe = table.Column<int>(type: "int", nullable: false),
+                    Online = table.Column<bool>(type: "bit", nullable: false),
+                    DanhGiaTB = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaiXes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaiXes_NguoiDungs_NguoiDungId",
+                        column: x => x.NguoiDungId,
+                        principalTable: "NguoiDungs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -165,10 +182,13 @@ namespace Baitap2.Migrations
                 name: "DiaDiems");
 
             migrationBuilder.DropTable(
+                name: "TaiXes");
+
+            migrationBuilder.DropTable(
                 name: "ThanhToans");
 
             migrationBuilder.DropTable(
-                name: "TaiXes");
+                name: "TuChoiChuyens");
 
             migrationBuilder.DropTable(
                 name: "NguoiDungs");

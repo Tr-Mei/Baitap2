@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Baitap2.Migrations
 {
     [DbContext(typeof(DemoContext))]
-    [Migration("20260411162610_fix_fk")]
-    partial class fix_fk
+    [Migration("20260417181541_DTB")]
+    partial class DTB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,6 +194,10 @@ namespace Baitap2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CCCD")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
@@ -201,11 +205,18 @@ namespace Baitap2.Migrations
                     b.Property<double>("DanhGiaTB")
                         .HasColumnType("float");
 
+                    b.Property<int>("LoaiXe")
+                        .HasColumnType("int");
+
                     b.Property<int>("NguoiDungId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Online")
                         .HasColumnType("bit");
+
+                    b.Property<string>("SoDienThoai")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
