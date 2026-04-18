@@ -340,7 +340,7 @@ public class AdminController : Controller
     // =========================
     public IActionResult KhachHang(int page = 1)
     {
-        int pageSize = 5;
+        int pageSize = 3;
 
         var query = _context.NguoiDungs
             .Where(x => x.VaiTro == VaiTro.Khach);
@@ -364,7 +364,7 @@ public class AdminController : Controller
     // =========================
     public IActionResult TaiXe(int page = 1)
     {
-        int pageSize = 5;
+        int pageSize = 3;
 
         var query = _context.NguoiDungs
             .Where(x => x.VaiTro == VaiTro.TaiXe);
@@ -519,7 +519,7 @@ public class AdminController : Controller
     // =========================
     public IActionResult ChuyenDis(int page = 1)
     {
-        int pageSize = 5;
+        int pageSize = 3;
 
         var total = _context.ChuyenDis.Count();
 
@@ -553,7 +553,7 @@ public class AdminController : Controller
     // =========================
     public IActionResult Gia(int page = 1)
     {
-        int pageSize = 5;
+        int pageSize = 3;
 
         var total = _context.ChuyenDis.Count();
 
