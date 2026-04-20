@@ -24,7 +24,7 @@
     }
 
     <h4>🚗 Tài xế</h4>
-    @if (Model.TaiXe != null)
+    @if (Model.TaiXe != null && Model.TaiXe.NguoiDung != null)
     {
         <p><b>Tên:</b> @Model.TaiXe.NguoiDung.Username</p>
         <p><b>SĐT:</b> @Model.TaiXe.NguoiDung.DienThoai</p>
@@ -32,6 +32,6 @@
     }
     else
     {
-        <p style="color:red;">Chưa có tài xế</p>
+        <p style="color:red;">🚫 Chưa có tài xế</p>
     }
 </div>
