@@ -76,34 +76,7 @@ namespace Baitap2.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public IActionResult Register(NguoiDung model)
-        //{
-        //    // 1. Validate
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
-
-        //    // 2. Check trùng
-        //    if (_context.NguoiDungs.Any(x => x.Username == model.Username))
-        //    {
-        //        ModelState.AddModelError("Username", "Username đã tồn tại");
-        //        return View(model);
-        //    }
-
-        //    if (_context.NguoiDungs.Any(x => x.Email == model.Email))
-        //    {
-        //        ModelState.AddModelError("Email", "Email đã tồn tại");
-        //        return View(model);
-        //    }
-
-        //    // 3. Save
-        //    _context.NguoiDungs.Add(model);
-        //    _context.SaveChanges();
-
-        //    return RedirectToAction("Login");
-        //}
+      
         [HttpPost]
         public IActionResult Register(NguoiDung model)
         {

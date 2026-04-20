@@ -4,15 +4,37 @@ namespace Baitap2.Hubs
 {
     public class RideHub : Hub
     {
-        public async Task ThamGiaChuyen(string Id)
+        
+        public async Task ThamGiaChuyen(int chuyenId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, Id);
+            await Groups.AddToGroupAsync(Context.ConnectionId, chuyenId.ToString());
         }
 
-        public async Task GuiViTri(string Id, double Vido, double KinhDo)
+        public override async Task OnConnectedAsync()
         {
-            await Clients.Group(Id)
-                .SendAsync("CapNhatViTri", Vido, KinhDo);
+            var userId = Context.GetHttpContext().Session.GetInt32("UserId");
+
+            if (userId != null)
+            {
+                // 🔥 dùng để gửi cuốc riêng cho từng tài xế
+                await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
+            }
+
+            await base.OnConnectedAsync();
+        }
+
+        public async Task GuiViTri(int chuyenId, double lat, double lng)
+        {
+            await Clients.Group(chuyenId.ToString())
+                .SendAsync("CapNhatViTri", new
+                {
+                    chuyenId = chuyenId,
+                    vido = lat,
+                    kinhDo = lng
+                });
         }
     }
+
 }
+
+

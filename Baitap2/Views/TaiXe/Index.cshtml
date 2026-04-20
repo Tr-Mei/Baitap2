@@ -109,13 +109,16 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
+
 <script>
     const id = @(Model?.Id ?? 0);
 
     let map, marker;
     let conn;
     let gpsRunning = false;
+    let watchId = null;
 
+    // ================= MAP =================
     if (id > 0) {
         map = L.map('map').setView([21.0285, 105.8542], 13);
 
@@ -123,41 +126,68 @@
             .addTo(map);
 
         marker = L.marker([21.0285, 105.8542]).addTo(map);
+
+        // 📍 Lấy vị trí thật
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+            });
+        }
     }
 
+    // ================= GPS =================
     function runGPS() {
         if (gpsRunning) return;
         gpsRunning = true;
 
+        if (!navigator.geolocation) {
+            alert("❌ Trình duyệt không hỗ trợ GPS");
+            return;
+        }
+
         let lastSend = 0;
 
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(
-                pos => {
-                    const now = Date.now();
-                    if (now - lastSend < 2000) return;
+        watchId = navigator.geolocation.watchPosition(
+            pos => {
+                const now = Date.now();
+                if (now - lastSend < 2000) return; // gửi mỗi 2s
 
-                    lastSend = now;
+                lastSend = now;
 
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
 
-                    if (marker) {
-                        marker.setLatLng([lat, lng]);
-                        map.setView([lat, lng]);
-                    }
-
-                    if (conn && conn.state === "Connected") {
-                        conn.invoke("GuiViTri", id, lat, lng);
-                    }
-                },
-                err => {
-                    alert("❌ Không lấy được GPS");
+                // update map
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng]);
                 }
-            );
-        }
+
+                // gửi lên server
+                if (conn && conn.state === "Connected") {
+                    conn.invoke("GuiViTri", id, lat, lng);
+                }
+            },
+            err => {
+                console.log("Lỗi GPS:", err.message);
+
+                if (err.code === 1) {
+                    alert("❌ Bạn chưa cấp quyền GPS");
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 5000
+            }
+        );
     }
 
+    // ================= UI =================
     function updateUI(status) {
         const tt = document.getElementById("tt");
         const actions = document.getElementById("actions");
@@ -167,19 +197,14 @@
         actions.innerHTML = "";
 
         switch (status) {
-            // case "DangTimTaiXe":
-            //     tt.innerText = "🕐 Có cuốc mới";
-            //     actions.innerHTML = `<a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>`;
-            //     break;
 
             case "DangTimTaiXe":
-    tt.innerText = "🕐 Có cuốc mới";
-    actions.innerHTML = `
-        <a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>
-        <a class="btn-tuchoi" href="/TaiXe/TuChoi/${id}">Từ chối</a>
-    `;
-    break;
-
+                tt.innerText = "🕐 Có cuốc mới";
+                actions.innerHTML = `
+                    <a class="btn-nhan" href="/TaiXe/Nhan/${id}">Nhận cuốc</a>
+                    <a class="btn-tuchoi" href="/TaiXe/TuChoi/${id}">Từ chối</a>
+                `;
+                break;
 
             case "DaNhan":
                 tt.innerText = "🚗 Đã nhận cuốc";
@@ -193,31 +218,33 @@
 
             case "DangDi":
                 tt.innerText = "🚕 Đang chở khách";
+
+                // 🔥 QUAN TRỌNG: chạy GPS ở đây
                 runGPS();
+
                 actions.innerHTML = `<a class="btn-hoanthanh" href="/TaiXe/HoanThanh/${id}">Hoàn thành</a>`;
                 break;
 
             case "HoanThanh":
                 tt.innerText = "🏁 Hoàn thành";
+                setTimeout(() => location.reload(), 2000);
                 break;
 
             case "DaHuy":
                 tt.innerText = "❌ Khách đã hủy";
 
-                if (map) {
-                    map.remove();
-                }
+                if (map) map.remove();
 
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
+                setTimeout(() => location.reload(), 2000);
                 break;
         }
     }
 
+    // ================= SIGNALR =================
     if (id > 0) {
         conn = new signalR.HubConnectionBuilder()
             .withUrl("/rideHub")
+            .withAutomaticReconnect() // 🔥 auto reconnect
             .build();
 
         conn.start().then(() => {
@@ -225,20 +252,31 @@
         });
 
         conn.on("NhanCapNhat", data => {
-            if (data.trangThai === "DaHuy") {
-                updateUI("DaHuy");
-                return;
-            }
             updateUI(data.trangThai);
+        });
+
+        // fallback nếu chết hẳn
+        let fail = 0;
+        conn.onclose(() => {
+            fail++;
+            if (fail >= 3) {
+                location.reload();
+            } else {
+                setTimeout(() => conn.start(), 2000);
+            }
         });
     }
 
+    // ================= INIT =================
     updateUI("@(Model?.TrangThai.ToString() ?? "")");
-        if (id === 0) {
+
+    // ================= AUTO RELOAD =================
+    if (id === 0) {
         setInterval(() => {
             location.reload();
         }, 3000);
     }
 </script>
+ 
 
 

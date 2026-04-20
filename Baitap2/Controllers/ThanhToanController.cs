@@ -21,17 +21,7 @@ public class ThanhToanController : Controller
         return View(tt);
     }
 
-    // 👉 XÁC NHẬN ĐÃ THANH TOÁN
-    //public IActionResult XacNhan(int id)
-    //{
-    //    var tt = _context.ThanhToans.Find(id);
-    //    if (tt == null) return NotFound();
-
-    //    tt.TrangThai = "DaTT";
-    //    _context.SaveChanges();
-
-    //    return Content("✅ Đã thanh toán");
-    //}
+    
 
     public IActionResult XacNhan(int id)
     {

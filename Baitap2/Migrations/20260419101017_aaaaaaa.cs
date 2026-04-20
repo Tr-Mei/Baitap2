@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Baitap2.Migrations
+namespace Demoapp.Migrations
 {
     /// <inheritdoc />
-    public partial class DTB : Migration
+    public partial class aaaaaaa : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,41 +94,6 @@ namespace Baitap2.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChuyenDis",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KhachId = table.Column<int>(type: "int", nullable: false),
-                    TaiXeId = table.Column<int>(type: "int", nullable: true),
-                    DiemDon = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    DiemDen = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    LoaiXe = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    ThoiGianDat = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GiaDuKien = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    TrangThai = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DanhGia = table.Column<int>(type: "int", nullable: true),
-                    NhanXet = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChuyenDis", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChuyenDis_NguoiDungs_KhachId",
-                        column: x => x.KhachId,
-                        principalTable: "NguoiDungs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ChuyenDis_NguoiDungs_TaiXeId",
-                        column: x => x.TaiXeId,
-                        principalTable: "NguoiDungs",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TaiXes",
                 columns: table => new
                 {
@@ -151,6 +116,41 @@ namespace Baitap2.Migrations
                         principalTable: "NguoiDungs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChuyenDis",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    KhachId = table.Column<int>(type: "int", nullable: false),
+                    TaiXeId = table.Column<int>(type: "int", nullable: true),
+                    DiemDon = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DiemDen = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    LoaiXe = table.Column<int>(type: "int", nullable: false),
+                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ThoiGianDat = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GiaDuKien = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TrangThai = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DanhGia = table.Column<int>(type: "int", nullable: true),
+                    NhanXet = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChuyenDis", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChuyenDis_NguoiDungs_KhachId",
+                        column: x => x.KhachId,
+                        principalTable: "NguoiDungs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChuyenDis_TaiXes_TaiXeId",
+                        column: x => x.TaiXeId,
+                        principalTable: "TaiXes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -182,13 +182,13 @@ namespace Baitap2.Migrations
                 name: "DiaDiems");
 
             migrationBuilder.DropTable(
-                name: "TaiXes");
-
-            migrationBuilder.DropTable(
                 name: "ThanhToans");
 
             migrationBuilder.DropTable(
                 name: "TuChoiChuyens");
+
+            migrationBuilder.DropTable(
+                name: "TaiXes");
 
             migrationBuilder.DropTable(
                 name: "NguoiDungs");

@@ -29,7 +29,7 @@ namespace Baitap2.Models
 
         [Required(ErrorMessage = "Username không được để trống")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Username từ 3-50 ký tự")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username chỉ chứa chữ, số và dấu _")]
+        [RegularExpression(@"^[\p{L}\p{M}0-9_\-\s]+$", ErrorMessage = "Username chỉ chứa chữ (kể cả tiếng Việt), số, khoảng trắng, _ và -")]
         public string Username { get; set; }
 
         // ⚠️ vẫn giữ plain text theo yêu cầu

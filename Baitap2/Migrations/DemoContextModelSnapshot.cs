@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Baitap2.Migrations
+namespace Demoapp.Migrations
 {
     [DbContext(typeof(DemoContext))]
     partial class DemoContextModelSnapshot : ModelSnapshot
@@ -58,9 +58,8 @@ namespace Baitap2.Migrations
                     b.Property<int>("KhachId")
                         .HasColumnType("int");
 
-                    b.Property<string>("LoaiXe")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("LoaiXe")
+                        .HasColumnType("int");
 
                     b.Property<string>("NhanXet")
                         .HasMaxLength(500)
@@ -277,7 +276,7 @@ namespace Baitap2.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Baitap2.Models.NguoiDung", "TaiXe")
+                    b.HasOne("Baitap2.Models.TaiXe", "TaiXe")
                         .WithMany()
                         .HasForeignKey("TaiXeId");
 

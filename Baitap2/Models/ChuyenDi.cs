@@ -30,7 +30,7 @@ namespace Baitap2.Models
         public int? TaiXeId { get; set; }
 
         [ForeignKey("TaiXeId")]
-        public NguoiDung TaiXe { get; set; }
+        public TaiXe TaiXe { get; set; }
 
         // ===== Địa điểm =====
         [Required(ErrorMessage = "Điểm đón không được để trống")]
@@ -44,7 +44,7 @@ namespace Baitap2.Models
         // ===== Loại xe =====
         [Required(ErrorMessage = "Loại xe không được để trống")]
         [RegularExpression("^(XeMay|Oto4Cho|Oto7Cho)$", ErrorMessage = "Loại xe không hợp lệ")]
-        public string LoaiXe { get; set; }
+        public LoaiXe  LoaiXe { get; set; }
 
         [StringLength(500, ErrorMessage = "Ghi chú tối đa 500 ký tự")]
         public string? GhiChu { get; set; }

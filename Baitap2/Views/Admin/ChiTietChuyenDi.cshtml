@@ -26,9 +26,9 @@
     <h4>🚗 Tài xế</h4>
     @if (Model.TaiXe != null)
     {
-        <p><b>Tên:</b> @Model.TaiXe.Username</p>
-        <p><b>SĐT:</b> @Model.TaiXe.DienThoai</p>
-        <p><b>Email:</b> @Model.TaiXe.Email</p>
+        <p><b>Tên:</b> @Model.TaiXe.NguoiDung.Username</p>
+        <p><b>SĐT:</b> @Model.TaiXe.NguoiDung.DienThoai</p>
+        <p><b>Email:</b> @Model.TaiXe.NguoiDung.Email</p>
     }
     else
     {

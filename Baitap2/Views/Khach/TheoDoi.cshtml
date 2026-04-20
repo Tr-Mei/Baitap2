@@ -1,4 +1,4 @@
-﻿@model Baitap2.Models.ChuyenDi
+﻿@* @model Baitap2.Models.ChuyenDi
 @using Baitap2.Models
 
 <style>
@@ -111,11 +111,15 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
+
 <script>
     const id = "@Model?.Id";
+    const rideId = parseInt(id);
 
-    let map, marker;
+    let map, marker, polyline;
+    let conn;
 
+    // ================== MAP ==================
     if (id) {
         map = L.map('map').setView([21.0285, 105.8542], 13);
 
@@ -123,22 +127,39 @@
             .addTo(map);
 
         marker = L.marker([21.0285, 105.8542]).addTo(map);
+
+        // 📍 Lấy vị trí thật
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+            });
+        }
     }
 
+    // ================== LẤY TỌA ĐỘ ==================
     async function layToaDo(diaChi) {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
-        const res = await fetch(url);
-        const data = await res.json();
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
+            const res = await fetch(url);
+            const data = await res.json();
 
-        if (data.length > 0) {
-            return {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon)
-            };
+            if (data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+            }
+        } catch (e) {
+            console.log("Lỗi tọa độ:", e);
         }
         return null;
     }
 
+    // ================== VẼ ĐƯỜNG ==================
     async function veDuong() {
         if (!id) return;
 
@@ -147,46 +168,72 @@
 
         if (!diemDon || !diemDen) return;
 
-        const url = `https://router.project-osrm.org/route/v1/driving/${diemDon.lng},${diemDon.lat};${diemDen.lng},${diemDen.lat}?overview=full&geometries=geojson`;
+        try {
+            const url = `https://router.project-osrm.org/route/v1/driving/${diemDon.lng},${diemDon.lat};${diemDen.lng},${diemDen.lat}?overview=full&geometries=geojson`;
 
-        const res = await fetch(url);
-        const data = await res.json();
+            const res = await fetch(url);
+            const data = await res.json();
 
-        const coords = data.routes[0].geometry.coordinates;
-        const latlngs = coords.map(c => [c[1], c[0]]);
+            if (!data.routes || data.routes.length === 0) return;
 
-        L.polyline(latlngs, { color: "green", weight: 5 }).addTo(map);
-        map.fitBounds(latlngs);
+            const coords = data.routes[0].geometry.coordinates;
+            const latlngs = coords.map(c => [c[1], c[0]]);
+
+            if (polyline) {
+                map.removeLayer(polyline);
+            }
+
+            polyline = L.polyline(latlngs, {
+                color: "blue",
+                weight: 6
+            }).addTo(map);
+
+            map.fitBounds(latlngs);
+        } catch (e) {
+            console.log("Lỗi vẽ đường:", e);
+        }
     }
 
     veDuong();
 
+    // ================== UI ==================
+    let lastStatus = "";
+
     function updateUI(status) {
         const tt = document.getElementById("tt");
+        lastStatus = status;
 
         switch (status) {
             case "DangTimTaiXe":
                 tt.innerText = "🔍 Đang tìm tài xế...";
                 break;
+
             case "DaNhan":
                 tt.innerText = "🚗 Đã có tài xế";
                 break;
+
             case "DaDen":
                 tt.innerText = "📍 Tài xế đã tới";
                 break;
+
             case "DangDi":
                 tt.innerText = "🚕 Đang di chuyển";
                 break;
+
             case "HoanThanh":
                 tt.innerText = "🏁 Hoàn thành";
                 setTimeout(() => {
                     window.location.href = `/DanhGia/Create?rideId=${id}`;
                 }, 1000);
                 break;
+
             case "DaHuy":
                 tt.innerText = "❌ Chuyến đã bị hủy";
                 document.getElementById("btnHuy").innerHTML = "";
                 break;
+
+            default:
+                tt.innerText = "";
         }
     }
 
@@ -209,12 +256,16 @@
         }
     }
 
-    updateUI("@Model?.TrangThai");
-    renderHuyButton("@Model?.TrangThai");
+    // ================== INIT ==================
+    const trangThai = "@(Model?.TrangThai.ToString() ?? "")";
+    updateUI(trangThai);
+    renderHuyButton(trangThai);
 
+    // ================== SIGNALR ==================
     if (id) {
-        const conn = new signalR.HubConnectionBuilder()
+        conn = new signalR.HubConnectionBuilder()
             .withUrl("/rideHub")
+            .withAutomaticReconnect()
             .build();
 
         conn.start().then(() => {
@@ -232,5 +283,313 @@
                 map.setView([lat, lng]);
             }
         });
+
+        // 🔄 fallback reconnect
+        let fail = 0;
+        conn.onclose(() => {
+            fail++;
+            if (fail >= 3) {
+                location.reload();
+            } else {
+                setTimeout(() => conn.start(), 2000);
+            }
+        });
     }
+
+    // ================== AUTO RELOAD THÔNG MINH ==================
+
+    // ❗ chưa có chuyến
+    if (!rideId) {
+        setInterval(() => location.reload(), 3000);
+    }
+
+    // ❗ kẹt trạng thái tìm tài xế quá lâu
+    setTimeout(() => {
+        if (lastStatus === "DangTimTaiXe") {
+            console.log("Reload vì tìm tài xế quá lâu");
+            location.reload();
+        }
+    }, 30000); // 30s
+
+</script>
+
+
+
+
+ *@
+
+
+
+@model Baitap2.Models.ChuyenDi
+@using Baitap2.Models
+
+<style>
+    body {
+        background: #f5f7fa;
+        font-family: Arial;
+    }
+
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+    }
+
+    .route {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .price {
+        color: #2e7d32;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .status {
+        text-align: center;
+        font-size: 18px;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        background: #e3f2fd;
+        font-weight: bold;
+    }
+
+    .cancel-btn {
+        width: 100%;
+        background: #e53935;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    #map {
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container">
+    <h2 style="text-align:center;">🚕 Theo dõi chuyến</h2>
+
+    @if (Model == null)
+    {
+        <div class="card">
+            <h3 style="text-align:center;">❌ Không có chuyến</h3>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="route">
+                📍 @Model.DiemDon → 🏁 @Model.DiemDen
+            </div>
+
+            <div class="price">
+                💰 @Model.GiaDuKien.ToString("N0") VNĐ
+            </div>
+
+            <div id="btnHuy">
+                @if (Model.TrangThai == TrangThai.DangTimTaiXe)
+                {
+                    <form method="post" asp-action="HuyChuyen">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="cancel-btn">❌ Hủy chuyến</button>
+                    </form>
+                }
+            </div>
+
+            <div id="tt" class="status"></div>
+        </div>
+
+        <div class="card">
+            <div id="map"></div>
+        </div>
+    }
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+    const id = "@Model?.Id";
+    const rideId = parseInt(id);
+
+    let map, marker, polyline;
+    let conn;
+
+    // ================= MAP =================
+    if (rideId) {
+        map = L.map('map').setView([21.0285, 105.8542], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+            .addTo(map);
+
+        marker = L.marker([21.0285, 105.8542]).addTo(map);
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+            });
+        }
+    }
+
+    // ================= LẤY TỌA ĐỘ =================
+    async function layToaDo(diaChi) {
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(diaChi)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+            }
+        } catch (e) {
+            console.log("Lỗi tọa độ:", e);
+        }
+        return null;
+    }
+
+    // ================= VẼ ĐƯỜNG =================
+    async function veDuong() {
+        if (!rideId) return;
+
+        const diemDon = await layToaDo("@Model?.DiemDon");
+        const diemDen = await layToaDo("@Model?.DiemDen");
+
+        if (!diemDon || !diemDen) return;
+
+        const url = `https://router.project-osrm.org/route/v1/driving/${diemDon.lng},${diemDon.lat};${diemDen.lng},${diemDen.lat}?overview=full&geometries=geojson`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const coords = data.routes[0].geometry.coordinates;
+        const latlngs = coords.map(c => [c[1], c[0]]);
+
+        polyline = L.polyline(latlngs, { color: "blue", weight: 6 }).addTo(map);
+        map.fitBounds(latlngs);
+    }
+
+    veDuong();
+
+    // ================= UI =================
+    let lastStatus = "";
+
+    function updateUI(status) {
+        const tt = document.getElementById("tt");
+        lastStatus = status;
+
+        switch (status) {
+            case "DangTimTaiXe":
+                tt.innerText = "🔍 Đang tìm tài xế...";
+                break;
+            case "DaNhan":
+                tt.innerText = "🚗 Đã có tài xế";
+                break;
+            case "DaDen":
+                tt.innerText = "📍 Tài xế đã tới";
+                break;
+            case "DangDi":
+                tt.innerText = "🚕 Đang di chuyển";
+                break;
+            case "HoanThanh":
+                tt.innerText = "🏁 Hoàn thành";
+                setTimeout(() => {
+                    window.location.href = `/DanhGia/Create?rideId=${rideId}`;
+                }, 1000);
+                break;
+            case "DaHuy":
+                tt.innerText = "❌ Chuyến đã bị hủy";
+                document.getElementById("btnHuy").innerHTML = "";
+                break;
+        }
+    }
+
+    function renderHuyButton(status) {
+        const container = document.getElementById("btnHuy");
+
+        if (!container) return;
+
+        if (status === "DangTimTaiXe") {
+            container.innerHTML = `
+                <form method="post" action="/Khach/HuyChuyen">
+                    <input type="hidden" name="id" value="${rideId}" />
+                    <button class="cancel-btn">❌ Hủy chuyến</button>
+                </form>
+            `;
+        } else {
+            container.innerHTML = "";
+        }
+    }
+
+    // ================= INIT =================
+    const trangThai = "@(Model?.TrangThai.ToString() ?? "")";
+    updateUI(trangThai);
+    renderHuyButton(trangThai);
+
+    // ================= SIGNALR =================
+    if (rideId) {
+        conn = new signalR.HubConnectionBuilder()
+            .withUrl("/rideHub")
+            .withAutomaticReconnect()
+            .build();
+
+        conn.start().then(() => {
+            console.log("✅ Connected");
+            conn.invoke("ThamGiaChuyen", rideId); // 🔥 FIX QUAN TRỌNG
+        });
+
+        conn.on("NhanCapNhat", data => {
+            console.log("🔥 trạng thái:", data);
+            updateUI(data.trangThai);
+            renderHuyButton(data.trangThai);
+        });
+
+        conn.on("CapNhatViTri", data => {
+            console.log("📍 GPS:", data);
+
+            if (marker) {
+                marker.setLatLng([data.vido, data.kinhDo]);
+                map.setView([data.vido, data.kinhDo]);
+            }
+        });
+
+        conn.onclose(() => {
+            console.log("❌ mất kết nối");
+            setTimeout(() => location.reload(), 2000);
+        });
+    }
+
+    // ================= AUTO =================
+    if (!rideId) {
+        setInterval(() => location.reload(), 3000);
+    }
+
+    setTimeout(() => {
+        if (lastStatus === "DangTimTaiXe") {
+            location.reload();
+        }
+    }, 30000);
 </script>
